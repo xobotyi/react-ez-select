@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import {DropdownContent} from "react-ez-dropdown";
+import {DropdownContent} from "react-ez-select";
 
 export default class Select extends React.Component {
     static propTypes = {

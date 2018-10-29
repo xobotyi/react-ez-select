@@ -21,7 +21,7 @@ module.exports = function karmaConfig(config) {
                        performance: {hints: false},
                        resolve:     {
                            alias: {
-                               'react-ez-dropdown': path.resolve(__dirname, './src'),
+                               'react-ez-select': path.resolve(__dirname, './src'),
                            },
                        },
                        module:      {
