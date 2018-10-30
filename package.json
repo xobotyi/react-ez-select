@@ -22,7 +22,7 @@
     "custom"
   ],
   "dependencies": {
-    "react-ez-dropdown": "^0.1.7"
+    "react-ez-dropdown": "^0.1.14"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0 || ^16.0.0",
@@ -61,7 +61,7 @@
     "prop-types": "^15.0.0",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "react-scrollbars-custom": "^2.2.2",
+    "react-scrollbars-custom": "^2.2.7",
     "rimraf": "^2.6.2",
     "sass-loader": "^7.1.0",
     "simulant": "^0.2.2",
@@ -72,7 +72,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run format && git add .",
+      "pre-commit": "npm run build && npm run format && git add .",
       "post-commit": "git update-index -g"
     }
   },
