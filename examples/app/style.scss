@@ -6,7 +6,6 @@
     font-style:     inherit;
     font-size:      100%;
     border:         0 none;
-    outline:        0;
     padding:        0;
     margin:         0;
 }
@@ -378,7 +377,7 @@ body {
                 width:      8px;
                 background: rgba(0, 0, 0, 0.1);
                 grid-area:  1 / 2 / auto / auto;
-                overflow:      hidden;
+                overflow:   hidden;
 
                 & > .ScrollbarsCustom-thumb {
                     cursor:     pointer;
@@ -452,7 +451,7 @@ body {
                 width:      8px;
                 background: rgba(0, 0, 0, 0.1);
                 grid-area:  1 / 2 / auto / auto;
-                overflow:      hidden;
+                overflow:   hidden;
 
                 & > .ScrollbarsCustom-thumb {
                     cursor:     pointer;

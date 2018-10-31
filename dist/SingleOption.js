@@ -33,34 +33,19 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var defaultStyles = {
-  common: {
-    cursor: "pointer",
-    padding: ".25em 1em"
-  },
-  disabled: {
-    cursor: "default"
-  },
-  focused: {
-    background: "rgba(0,0,0,.05)"
-  },
-  selected: {
-    background: "rgba(0,0,0,.05)",
-    fontWeight: "bold"
-  }
-};
-
-var Option =
+var SingleOption =
 /*#__PURE__*/
 function (_React$Component) {
-  _inherits(Option, _React$Component);
+  _inherits(SingleOption, _React$Component);
 
-  function Option(props) {
+  function SingleOption(props) {
+    var _ref, _this$props$disabled, _ref2, _this$props$selected, _this$props$focused;
+
     var _this;
 
-    _classCallCheck(this, Option);
+    _classCallCheck(this, SingleOption);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Option).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(SingleOption).call(this, props));
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleOptionMouseEnter", function () {
       _this.props.onFocus && _this.props.onFocus.call(_assertThisInitialized(_assertThisInitialized(_this)), _this.props.option);
@@ -96,14 +81,14 @@ function (_React$Component) {
     });
 
     _this.state = {
-      disabled: _this.props.disabled,
-      selected: _this.props.selected,
-      focused: _this.props.focused
+      disabled: (_ref = (_this$props$disabled = _this.props.disabled) !== null && _this$props$disabled !== void 0 ? _this$props$disabled : _this.props.option.disabled) !== null && _ref !== void 0 ? _ref : false,
+      selected: (_ref2 = (_this$props$selected = _this.props.selected) !== null && _this$props$selected !== void 0 ? _this$props$selected : _this.props.option.selected) !== null && _ref2 !== void 0 ? _ref2 : false,
+      focused: (_this$props$focused = _this.props.focused) !== null && _this$props$focused !== void 0 ? _this$props$focused : false
     };
     return _this;
   }
 
-  _createClass(Option, [{
+  _createClass(SingleOption, [{
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps) {
       prevProps.disabled !== this.props.disabled && this.props.disabled !== this.state.disabled && this.setDisabled(this.props.disabled);
@@ -117,9 +102,11 @@ function (_React$Component) {
 
       var _this$props = this.props,
           option = _this$props.option,
-          noDefaultStyles = _this$props.noDefaultStyles,
           className = _this$props.className,
           style = _this$props.style,
+          styleFocused = _this$props.styleFocused,
+          styleSelected = _this$props.styleSelected,
+          styleDisabled = _this$props.styleDisabled,
           disabledProp = _this$props.disabled,
           selectedProp = _this$props.selected,
           focusedProp = _this$props.focused,
@@ -128,36 +115,40 @@ function (_React$Component) {
           selected = _this$state.selected,
           focused = _this$state.focused;
 
-      var optionClassnames = "EzSelect-option" + (className ? " " + className : "") + (focused && " EzSelect-focused") + (selected && " EzSelect-selected") + (disabled && " EzSelect-disabled"),
-          optionStyles = _objectSpread({}, !this.props.noDefaultStyles && defaultStyles.common, !this.props.noDefaultStyles && focused && defaultStyles.focused, !this.props.noDefaultStyles && selected && defaultStyles.selected, !this.props.noDefaultStyles && disabled && defaultStyles.disabled);
+      var optionClassNames = "EzSelect-option" + (className ? " " + className : "") + (focused ? " EzSelect-focused" : "") + (selected ? " EzSelect-selected" : "") + (disabled ? " EzSelect-disabled" : ""),
+          optionStyles = _objectSpread({}, style, focused && styleFocused, selected && styleSelected, disabled && styleDisabled);
 
       return _react.default.createElement("div", {
         key: "option_".concat(option.value),
-        className: optionClassnames,
+        className: optionClassNames,
         onMouseEnter: this.handleOptionMouseEnter,
         onMouseLeave: this.handleOptionMouseLeave,
-        onClick: this.handleOptionClick,
+        onClick: disabled ? null : this.handleOptionClick,
         style: optionStyles,
-        ref: function ref(_ref) {
-          return _this2.element = _ref;
+        ref: function ref(_ref3) {
+          return _this2.element = _ref3;
         }
       }, option.label);
     }
   }]);
 
-  return Option;
+  return SingleOption;
 }(_react.default.Component);
 
-exports.default = Option;
+exports.default = SingleOption;
 
-_defineProperty(Option, "propTypes", {
+_defineProperty(SingleOption, "propTypes", {
   option: _propTypes.default.shape({
     value: _propTypes.default.any.isRequired,
-    label: _propTypes.default.any.isRequired
+    label: _propTypes.default.any.isRequired,
+    disabled: _propTypes.default.bool,
+    selected: _propTypes.default.bool
   }).isRequired,
   className: _propTypes.default.string,
   style: _propTypes.default.object,
-  noDefaultStyles: _propTypes.default.bool,
+  styleFocused: _propTypes.default.object,
+  styleDisabled: _propTypes.default.object,
+  styleSelected: _propTypes.default.object,
   focused: _propTypes.default.bool,
   selected: _propTypes.default.bool,
   disabled: _propTypes.default.bool,
@@ -166,7 +157,7 @@ _defineProperty(Option, "propTypes", {
   onBlur: _propTypes.default.func
 });
 
-_defineProperty(Option, "defaultProps", {
+_defineProperty(SingleOption, "defaultProps", {
   noDefaultStyles: false,
   disabled: false,
   selected: false,

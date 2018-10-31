@@ -1,43 +1,73 @@
 import PropTypes from "prop-types";
 import React from "react";
 import {Dropdown, DropdownContent, DropdownTrigger} from "react-ez-dropdown";
-import Option from "./Option";
+import SingleOption from "./SingleOption";
 
-const defaultStyles = {
+const defaultStyle = {
     wrapper: {
-        display: "flex",
-        position: "relative",
-        height: "2em",
-        borderRadius: 2,
-        border: "1px solid #aaa",
-        userSelect: "none",
-        boxSizing: "border-box",
+        regular: {
+            position: "relative",
+        },
+    },
+    controls: {
+        regular: {
+            display: "flex",
+            border: "1px solid #aaa",
+            borderRadius: 2,
+            userSelect: "none",
+        },
     },
     placeholder: {
-        padding: ".25em 1em",
-        boxSizing: "border-box",
-        lineHeight: "1.5em",
-        cursor: "default",
-        background: "#fff",
+        regular: {
+            padding: ".25em 1em",
+            lineHeight: "1.5em",
+            cursor: "pointer",
+            background: "#fff",
+        },
     },
     arrow: {
-        padding: ".5em",
-        cursor: "pointer",
-        width: "2em",
-        height: "100%",
-        color: "#aaa",
-        background: "#fff",
-        boxSizing: "border-box",
+        regular: {
+            cursor: "pointer",
+            background: "#fff",
+            color: "#aaa",
+            padding: ".5em",
+            height: "2em",
+            width: "2em",
+            boxSizing: "border-box",
+        },
     },
     dropdown: {
-        background: "#fff",
-        position: "absolute",
-        left: "-1px",
-        top: "calc(100% + 4px)",
-        borderRadius: 2,
-        border: "1px solid #aaa",
-        minWidth: "100%",
-        padding: ".25rem 0",
+        regular: {
+            position: "absolute",
+            boxSizing: "border-box",
+            top: "calc(100% + 4px)",
+            left: 0,
+            padding: ".25rem 0",
+            minWidth: "100%",
+            background: "#fff",
+            border: "1px solid #aaa",
+            borderRadius: 2,
+        },
+    },
+    option: {
+        regular: {
+            cursor: "pointer",
+            padding: ".25em 1em",
+            whiteSpace: "nowrap",
+            userSelect: "none",
+        },
+        disabled: {
+            cursor: "default",
+            opacity: 0.5,
+            background: "transparent",
+        },
+        focused: {
+            background: "rgba(0,0,0,.05)",
+        },
+        selected: {
+            background: "rgba(14, 135, 224, 0.18)",
+            fontWeight: 500,
+        },
     },
 };
 
@@ -47,32 +77,48 @@ export default class Select extends React.Component {
             PropTypes.shape({
                 value: PropTypes.any.isRequired,
                 label: PropTypes.any.isRequired,
+                disabled: PropTypes.bool,
+                selected: PropTypes.bool,
+                default: PropTypes.bool,
             })
         ),
-        placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.element]),
-        arrowContent: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.element]),
+        placeholder: PropTypes.any,
+        placeholderMediator: PropTypes.func,
+        arrowContent: PropTypes.any,
 
         removeDropdownOnHide: PropTypes.bool,
         noDefaultStyles: PropTypes.bool,
+        noArrow: PropTypes.bool,
 
         tagName: PropTypes.string,
         className: PropTypes.string,
         style: PropTypes.object,
+        openedStyle: PropTypes.object,
         tabIndex: PropTypes.string,
 
-        placeholderTagName: PropTypes.string,
+        controlsClassName: PropTypes.string,
+        controlsStyle: PropTypes.object,
+        controlsOpenedStyle: PropTypes.object,
+
         placeholderClassName: PropTypes.string,
         placeholderStyle: PropTypes.object,
+        placeholderOpenedStyle: PropTypes.object,
 
-        arrowTagName: PropTypes.string,
         arrowClassName: PropTypes.string,
         arrowStyle: PropTypes.object,
+        arrowOpenedStyle: PropTypes.object,
 
-        dropdownTagName: PropTypes.string,
         dropdownClassName: PropTypes.string,
         dropdownStyle: PropTypes.object,
+        dropdownOpenedStyle: PropTypes.object,
+
+        optionStyle: PropTypes.object,
+        optionStyleDisabled: PropTypes.object,
+        optionStyleFocused: PropTypes.object,
+        optionStyleSelected: PropTypes.object,
 
         onChange: PropTypes.func,
+        onInput: PropTypes.func,
         onOpen: PropTypes.func,
         onClose: PropTypes.func,
     };
@@ -80,6 +126,9 @@ export default class Select extends React.Component {
     static defaultProps = {
         removeDropdownOnHide: false,
         noDefaultStyles: false,
+        noArrow: false,
+
+        tagName: "div",
         tabIndex: "0",
 
         arrowContent: (
@@ -95,29 +144,105 @@ export default class Select extends React.Component {
                 />
             </svg>
         ),
-
         placeholder: "Select...",
-        tagName: "div",
-        placeholderTagName: "div",
-        arrowTagName: "div",
-        dropdownTagName: "div",
     };
 
     constructor(props) {
         super(props);
 
-        this.dropdownOpened = false;
+        const preselected = this.getPreselectedOption();
 
         this.state = {
-            value: null,
-            focusedOption: null,
-            focusedOptionIdx: -1,
-            selectedOption: null,
-            selectedOptionIdx: -1,
+            value: undefined,
+            focusedOption: preselected.option ?? undefined,
+            focusedOptionIdx: preselected.index,
+            selectedOption: preselected.option ?? undefined,
+            selectedOptionIdx: preselected.index,
+
+            opened: false,
         };
     }
 
+    getPreselectedOption = () => {
+        const result = {
+            option: null,
+            index: -1,
+        };
+
+        for (let i = 0; i < this.props.options.length; i++) {
+            if (this.props.options[i].selected) {
+                result.option = this.props.options[i];
+                result.index = i;
+                break;
+            }
+        }
+
+        return result;
+    };
+
+    actualizeSelectedAndFocusedOptions = () => {
+        const newState = {
+            selectedOption: null,
+            selectedOptionIdx: -1,
+            focusedOption: null,
+            focusedOptionIdx: -1,
+        };
+
+        if (this.state.selectedOption || this.state.focusedOption) {
+            for (let i = 0; i < this.props.options.length; i++) {
+                if (
+                    !newState.selectedOption &&
+                    this.state.selectedOption &&
+                    this.props.options[i].value === this.state.selectedOption.value
+                ) {
+                    newState.selectedOption = this.props.options[i];
+                    newState.selectedOptionIdx = i;
+                }
+
+                if (
+                    !newState.focusedOption &&
+                    this.state.focusedOption &&
+                    this.props.options[i].value === this.state.focusedOption.value
+                ) {
+                    newState.focusedOption = this.props.options[i];
+                    newState.focusedOptionIdx = i;
+                }
+
+                if (newState.focusedOption && newState.selectedOption) {
+                    break;
+                }
+            }
+        }
+
+        if (!newState.selectedOption) {
+            const preselected = this.getPreselectedOption();
+
+            if (preselected.option) {
+                newState.selectedOption = preselected.option;
+                newState.selectedOptionIdx = preselected.index;
+
+                if (!newState.focusedOption) {
+                    newState.focusedOption = preselected.option;
+                    newState.focusedOptionIdx = preselected.index;
+                }
+            }
+        }
+
+        this.setState(newState);
+    };
+
     componentDidMount() {}
+
+    componentDidUpdate(prevProps) {
+        if (this.props.opened !== prevProps.opened && this.props.opened !== this.state.opened) {
+            this.setState({opened: this.props.opened});
+            return false;
+        }
+
+        if (this.props.options !== prevProps.options) {
+            this.actualizeSelectedAndFocusedOptions();
+        }
+    }
 
     componentWillUnmount() {
         document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
@@ -130,15 +255,28 @@ export default class Select extends React.Component {
 
         return this.props.options.map(option => {
             return (
-                <Option
+                <SingleOption
                     key={`option_${option.value}`}
                     option={option}
                     focused={this.state.focusedOption === option}
                     selected={this.state.selectedOption === option}
+                    disabled={option.disabled ?? false}
                     onFocus={this.handleOptionFocus}
                     onBlur={this.handleOptionBlur}
                     onClick={this.handleOptionClick}
-                    noDefaultStyles={this.props.noDefaultStyles}
+                    style={{...(!this.props.noDefaultStyles && defaultStyle.option.regular), ...this.props.optionStyle}}
+                    styleFocused={{
+                        ...(!this.props.noDefaultStyles && defaultStyle.option.focused),
+                        ...this.props.optionStyleFocused,
+                    }}
+                    styleSelected={{
+                        ...(!this.props.noDefaultStyles && defaultStyle.option.selected),
+                        ...this.props.optionStyleSelected,
+                    }}
+                    styleDisabled={{
+                        ...(!this.props.noDefaultStyles && defaultStyle.option.disabled),
+                        ...this.props.optionStyleDisabled,
+                    }}
                 />
             );
         });
@@ -170,6 +308,8 @@ export default class Select extends React.Component {
                 selectedOptionIdx: this.props.options.indexOf(option),
             });
         }
+
+        this.controls && this.controls.focus();
     };
 
     focusOption(direction = "first") {
@@ -202,34 +342,69 @@ export default class Select extends React.Component {
         });
     }
 
+    selectValue(direction = "first") {
+        const {selectedOptionIdx} = this.state;
+        const {options} = this.props;
+
+        let idxToSelect;
+        switch (direction) {
+            case "up":
+                idxToSelect = selectedOptionIdx > 0 ? selectedOptionIdx - 1 : options.length - 1;
+                break;
+
+            case "down":
+                idxToSelect = (selectedOptionIdx + 1) % options.length;
+                break;
+
+            case "last":
+                idxToSelect = options.length - 1;
+                break;
+
+            case "first":
+            default:
+                idxToSelect = 0;
+                break;
+        }
+
+        this.setState({
+            selectedOptionIdx: idxToSelect,
+            selectedOption: options[idxToSelect],
+            focusedOptionIdx: idxToSelect,
+            focusedOption: options[idxToSelect],
+        });
+    }
+
     handleDocumentKeyDown = e => {
         switch (e.key) {
             case "ArrowUp":
-                this.dropdownOpened ? this.focusOption("up") : false;
+                this.state.opened ? this.focusOption("up") : this.selectValue("up");
 
                 break;
 
             case "ArrowDown":
-                this.dropdownOpened ? this.focusOption("down") : false;
+                this.state.opened ? this.focusOption("down") : this.selectValue("down");
 
                 break;
 
             case "Home":
-                this.dropdownOpened && this.focusOption("first");
+                this.state.opened ? this.focusOption("first") : this.selectValue("first");
 
                 break;
 
             case "End":
-                this.dropdownOpened && this.focusOption("last");
+                this.state.opened ? this.focusOption("last") : this.selectValue("last");
 
                 break;
 
             case "Enter":
-                this.dropdownOpened &&
-                    this.setState({
-                        selectedOption: this.state.focusedOption,
-                        selectedOptionIdx: this.state.focusedOptionIdx,
-                    });
+                this.state.opened
+                    ? this.setState({
+                          selectedOption: this.state.focusedOption,
+                          selectedOptionIdx: this.state.focusedOptionIdx,
+                      })
+                    : this.setState({
+                          opened: true,
+                      });
                 break;
         }
 
@@ -239,101 +414,138 @@ export default class Select extends React.Component {
     handleDropdownOpen = () => {
         this.props.onOpen && this.props.onOpen.call(this);
         this.wrapper && this.wrapper.classList.add("EzSelect-opened");
-        this.dropdownOpened = true;
+        this.setState({opened: true});
 
         document.body.addEventListener("keydown", this.handleDocumentKeyDown);
     };
+
     handleDropdownClose = () => {
         this.props.onClose && this.props.onClose.call(this);
         this.wrapper && this.wrapper.classList.remove("EzSelect-opened");
-        this.dropdownOpened = false;
+        this.setState({opened: false});
 
         document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
     };
 
-    handleFocus = () => {};
+    handleFocus = () => {
+        document.body.addEventListener("keydown", this.handleDocumentKeyDown);
+    };
 
-    handleBlur = () => {};
+    handleBlur = () => {
+        document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
+    };
 
     render() {
         const {
-            removeDropdownOnHide,
-            options,
-            noDefaultStyles,
+                removeDropdownOnHide,
+                options,
+                noDefaultStyles,
+                noArrow,
 
-            tagName,
-            className,
-            style,
-            tabIndex,
+                tagName,
+                className,
+                style,
+                openedStyle,
+                tabIndex,
 
-            placeholderTagName,
-            placeholderClassName,
-            placeholderStyle,
+                controlsClassName,
+                controlsStyle,
+                controlsOpenedStyle,
 
-            arrowTagName,
-            arrowClassName,
-            arrowStyle,
-            arrowContent,
+                placeholderClassName,
+                placeholderStyle,
+                placeholderOpenedStyle,
 
-            dropdownTagName,
-            dropdownClassName,
-            dropdownStyle,
+                arrowClassName,
+                arrowStyle,
+                arrowOpenedStyle,
 
-            placeholder,
+                dropdownClassName,
+                dropdownStyle,
+                dropdownOpenedStyle,
 
-            onOpen,
-            onClose,
-            onChange,
+                placeholder,
+                placeholderMediator,
+                arrowContent,
 
-            ...props
-        } = this.props;
+                onOpen,
+                onClose,
+                onChange,
+
+                ...props
+            } = this.props,
+            {opened, selectedOption} = this.state;
 
         const wrapperClassNames = "EzSelect" + (className ? " " + className : ""),
+            controlsClassNames = "EzSelect-controls" + (controlsClassName ? " " + controlsClassName : ""),
             placeholderClassNames = "EzSelect-placeholder" + (placeholderClassName ? " " + placeholderClassName : ""),
             arrowClassNames = "EzSelect-arrow" + (arrowClassName ? " " + arrowClassName : ""),
             dropdownClassNames = "EzSelect-dropdown" + (dropdownClassName ? " " + dropdownClassName : "");
 
-        const wrapperStyles = {...(!noDefaultStyles && defaultStyles.wrapper), ...style},
-            placeholderStyles = {...(!noDefaultStyles && defaultStyles.placeholder), ...placeholderStyle},
-            arrowStyles = {...(!noDefaultStyles && defaultStyles.arrow), ...arrowStyle},
-            dropdownStyles = {...(!noDefaultStyles && defaultStyles.dropdown), ...dropdownStyle};
+        let wrapperStyles = {...style, ...(opened && openedStyle)},
+            controlsStyles = {...controlsStyle, ...(opened && controlsOpenedStyle)},
+            placeholderStyles = {...placeholderStyle, ...(opened && placeholderOpenedStyle)},
+            arrowStyles = {...arrowStyle, ...(opened && arrowOpenedStyle)},
+            dropdownStyles = {...dropdownStyle, ...(opened && dropdownOpenedStyle)};
+
+        if (!noDefaultStyles) {
+            wrapperStyles = {
+                ...defaultStyle.wrapper.regular,
+                ...(opened && defaultStyle.wrapper.opened),
+                ...wrapperStyles,
+            };
+            controlsStyles = {
+                ...defaultStyle.controls.regular,
+                ...(opened && defaultStyle.controls.opened),
+                ...controlsStyles,
+            };
+            placeholderStyles = {
+                ...defaultStyle.placeholder.regular,
+                ...(opened && defaultStyle.placeholder.opened),
+                ...placeholderStyles,
+            };
+            arrowStyles = {...defaultStyle.arrow.regular, ...(opened && defaultStyle.arrow.opened), ...arrowStyles};
+            dropdownStyles = {
+                ...defaultStyle.dropdown.regular,
+                ...(opened && defaultStyle.dropdown.opened),
+                ...dropdownStyles,
+            };
+        }
 
         return React.createElement(tagName, {
             ...props,
             className: wrapperClassNames,
             style: wrapperStyles,
-            ref: ref => (this.wrapper = ref),
             key: "EzSelect",
-            tabIndex,
-            onFocus: this.handleFocus,
-            onBlur: this.handleBlur,
             children: (
-                <Dropdown key="EzSelect-dropdown">
+                <Dropdown>
                     <DropdownTrigger
-                        tagName={placeholderTagName}
-                        className={placeholderClassNames}
-                        style={placeholderStyles}
-                        ref={ref => (this.placeholder = ref)}
-                        key="EzSelect-placeholder">
-                        {placeholder}
-                    </DropdownTrigger>
-
-                    <DropdownTrigger
-                        tagName={arrowTagName}
-                        className={arrowClassNames}
-                        style={arrowStyles}
-                        ref={ref => (this.arrow = ref)}
-                        key="EzSelect-arrow">
-                        {arrowContent}
+                        className={controlsClassNames}
+                        style={controlsStyles}
+                        tabIndex={tabIndex}
+                        onFocus={this.handleFocus}
+                        onBlur={this.handleBlur}
+                        ref={ref => (this.controls = ref)}>
+                        <div className={placeholderClassNames} style={placeholderStyles}>
+                            {typeof selectedOption === "undefined"
+                                ? placeholder
+                                : !!placeholderMediator
+                                    ? placeholderMediator(selectedOption)
+                                    : selectedOption.label}
+                        </div>
+                        {!noArrow && (
+                            <div className={arrowClassNames} style={arrowStyles}>
+                                {arrowContent}
+                            </div>
+                        )}
                     </DropdownTrigger>
 
                     <DropdownContent
-                        tagName={dropdownTagName}
                         removeOnHide={removeDropdownOnHide}
                         className={dropdownClassNames}
                         style={dropdownStyles}
-                        ref={ref => (this.dropdown = ref)}
                         key="EzSelect-dropdown"
+                        opened={opened}
                         onShow={this.handleDropdownOpen}
                         onHide={this.handleDropdownClose}>
                         {this.renderOptions()}

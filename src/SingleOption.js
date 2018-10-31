@@ -1,33 +1,21 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-const defaultStyles = {
-    common: {
-        cursor: "pointer",
-        padding: ".25em 1em",
-    },
-    disabled: {
-        cursor: "default",
-    },
-    focused: {
-        background: "rgba(0,0,0,.05)",
-    },
-    selected: {
-        background: "rgba(0,0,0,.05)",
-        fontWeight: "bold",
-    },
-};
-
-export default class Option extends React.Component {
+export default class SingleOption extends React.Component {
     static propTypes = {
         option: PropTypes.shape({
             value: PropTypes.any.isRequired,
             label: PropTypes.any.isRequired,
+            disabled: PropTypes.bool,
+            selected: PropTypes.bool,
         }).isRequired,
+
         className: PropTypes.string,
         style: PropTypes.object,
+        styleFocused: PropTypes.object,
+        styleDisabled: PropTypes.object,
+        styleSelected: PropTypes.object,
 
-        noDefaultStyles: PropTypes.bool,
         focused: PropTypes.bool,
         selected: PropTypes.bool,
         disabled: PropTypes.bool,
@@ -49,9 +37,9 @@ export default class Option extends React.Component {
         super(props);
 
         this.state = {
-            disabled: this.props.disabled,
-            selected: this.props.selected,
-            focused: this.props.focused,
+            disabled: this.props.disabled ?? this.props.option.disabled ?? false,
+            selected: this.props.selected ?? this.props.option.selected ?? false,
+            focused: this.props.focused ?? false,
         };
     }
 
@@ -59,9 +47,11 @@ export default class Option extends React.Component {
         prevProps.disabled !== this.props.disabled &&
             this.props.disabled !== this.state.disabled &&
             this.setDisabled(this.props.disabled);
+
         prevProps.selected !== this.props.selected &&
             this.props.selected !== this.state.selected &&
             this.setSelected(this.props.selected);
+
         prevProps.focused !== this.props.focused &&
             this.props.focused !== this.state.focused &&
             this.setFocused(this.props.focused);
@@ -90,35 +80,37 @@ export default class Option extends React.Component {
     render() {
         const {
                 option,
-                noDefaultStyles,
                 className,
                 style,
+                styleFocused,
+                styleSelected,
+                styleDisabled,
                 disabled: disabledProp,
                 selected: selectedProp,
                 focused: focusedProp,
             } = this.props,
             {disabled, selected, focused} = this.state;
 
-        const optionClassnames =
+        const optionClassNames =
                 "EzSelect-option" +
                 (className ? " " + className : "") +
-                (focused && " EzSelect-focused") +
-                (selected && " EzSelect-selected") +
-                (disabled && " EzSelect-disabled"),
+                (focused ? " EzSelect-focused" : "") +
+                (selected ? " EzSelect-selected" : "") +
+                (disabled ? " EzSelect-disabled" : ""),
             optionStyles = {
-                ...(!this.props.noDefaultStyles && defaultStyles.common),
-                ...(!this.props.noDefaultStyles && focused && defaultStyles.focused),
-                ...(!this.props.noDefaultStyles && selected && defaultStyles.selected),
-                ...(!this.props.noDefaultStyles && disabled && defaultStyles.disabled),
+                ...style,
+                ...(focused && styleFocused),
+                ...(selected && styleSelected),
+                ...(disabled && styleDisabled),
             };
 
         return (
             <div
                 key={`option_${option.value}`}
-                className={optionClassnames}
+                className={optionClassNames}
                 onMouseEnter={this.handleOptionMouseEnter}
                 onMouseLeave={this.handleOptionMouseLeave}
-                onClick={this.handleOptionClick}
+                onClick={disabled ? null : this.handleOptionClick}
                 style={optionStyles}
                 ref={ref => (this.element = ref)}>
                 {option.label}

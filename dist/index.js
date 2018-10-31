@@ -11,17 +11,17 @@ var _react = _interopRequireDefault(require("react"));
 
 var _reactEzDropdown = require("react-ez-dropdown");
 
-var _Option = _interopRequireDefault(require("./Option"));
+var _SingleOption = _interopRequireDefault(require("./SingleOption"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
-
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -41,41 +41,71 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var defaultStyles = {
+var defaultStyle = {
   wrapper: {
-    display: "flex",
-    position: "relative",
-    height: "2em",
-    borderRadius: 2,
-    border: "1px solid #aaa",
-    userSelect: "none",
-    boxSizing: "border-box"
+    regular: {
+      position: "relative"
+    }
+  },
+  controls: {
+    regular: {
+      display: "flex",
+      border: "1px solid #aaa",
+      borderRadius: 2,
+      userSelect: "none"
+    }
   },
   placeholder: {
-    padding: ".25em 1em",
-    boxSizing: "border-box",
-    lineHeight: "1.5em",
-    cursor: "default",
-    background: "#fff"
+    regular: {
+      padding: ".25em 1em",
+      lineHeight: "1.5em",
+      cursor: "pointer",
+      background: "#fff"
+    }
   },
   arrow: {
-    padding: ".5em",
-    cursor: "pointer",
-    width: "2em",
-    height: "100%",
-    color: "#aaa",
-    background: "#fff",
-    boxSizing: "border-box"
+    regular: {
+      cursor: "pointer",
+      background: "#fff",
+      color: "#aaa",
+      padding: ".5em",
+      height: "2em",
+      width: "2em",
+      boxSizing: "border-box"
+    }
   },
   dropdown: {
-    background: "#fff",
-    position: "absolute",
-    left: "-1px",
-    top: "calc(100% + 4px)",
-    borderRadius: 2,
-    border: "1px solid #aaa",
-    minWidth: "100%",
-    padding: ".25rem 0"
+    regular: {
+      position: "absolute",
+      boxSizing: "border-box",
+      top: "calc(100% + 4px)",
+      left: 0,
+      padding: ".25rem 0",
+      minWidth: "100%",
+      background: "#fff",
+      border: "1px solid #aaa",
+      borderRadius: 2
+    }
+  },
+  option: {
+    regular: {
+      cursor: "pointer",
+      padding: ".25em 1em",
+      whiteSpace: "nowrap",
+      userSelect: "none"
+    },
+    disabled: {
+      cursor: "default",
+      opacity: .5,
+      background: "transparent"
+    },
+    focused: {
+      background: "rgba(0,0,0,.05)"
+    },
+    selected: {
+      background: "rgba(14, 135, 224, 0.18)",
+      fontWeight: 500
+    }
   }
 };
 
@@ -85,11 +115,73 @@ function (_React$Component) {
   _inherits(Select, _React$Component);
 
   function Select(props) {
+    var _preselected$option, _preselected$option2;
+
     var _this;
 
     _classCallCheck(this, Select);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Select).call(this, props));
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getPreselectedOption", function () {
+      var result = {
+        option: null,
+        index: -1
+      };
+
+      for (var i = 0; i < _this.props.options.length; i++) {
+        if (_this.props.options[i].selected) {
+          result.option = _this.props.options[i];
+          result.index = i;
+          break;
+        }
+      }
+
+      return result;
+    });
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "actualizeSelectedAndFocusedOptions", function () {
+      var newState = {
+        selectedOption: null,
+        selectedOptionIdx: -1,
+        focusedOption: null,
+        focusedOptionIdx: -1
+      };
+
+      if (_this.state.selectedOption || _this.state.focusedOption) {
+        for (var i = 0; i < _this.props.options.length; i++) {
+          if (!newState.selectedOption && _this.state.selectedOption && _this.props.options[i].value === _this.state.selectedOption.value) {
+            newState.selectedOption = _this.props.options[i];
+            newState.selectedOptionIdx = i;
+          }
+
+          if (!newState.focusedOption && _this.state.focusedOption && _this.props.options[i].value === _this.state.focusedOption.value) {
+            newState.focusedOption = _this.props.options[i];
+            newState.focusedOptionIdx = i;
+          }
+
+          if (newState.focusedOption && newState.selectedOption) {
+            break;
+          }
+        }
+      }
+
+      if (!newState.selectedOption) {
+        var preselected = _this.getPreselectedOption();
+
+        if (preselected.option) {
+          newState.selectedOption = preselected.option;
+          newState.selectedOptionIdx = preselected.index;
+
+          if (!newState.focusedOption) {
+            newState.focusedOption = preselected.option;
+            newState.focusedOptionIdx = preselected.index;
+          }
+        }
+      }
+
+      _this.setState(newState);
+    });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "renderOptions", function () {
       if (!_this.props.options || !_this.props.options.length) {
@@ -97,15 +189,21 @@ function (_React$Component) {
       }
 
       return _this.props.options.map(function (option) {
-        return _react.default.createElement(_Option.default, {
+        var _option$disabled;
+
+        return _react.default.createElement(_SingleOption.default, {
           key: "option_".concat(option.value),
           option: option,
           focused: _this.state.focusedOption === option,
           selected: _this.state.selectedOption === option,
+          disabled: (_option$disabled = option.disabled) !== null && _option$disabled !== void 0 ? _option$disabled : false,
           onFocus: _this.handleOptionFocus,
           onBlur: _this.handleOptionBlur,
           onClick: _this.handleOptionClick,
-          noDefaultStyles: _this.props.noDefaultStyles
+          style: _objectSpread({}, !_this.props.noDefaultStyles && defaultStyle.option.regular, _this.props.optionStyle),
+          styleFocused: _objectSpread({}, !_this.props.noDefaultStyles && defaultStyle.option.focused, _this.props.optionStyleFocused),
+          styleSelected: _objectSpread({}, !_this.props.noDefaultStyles && defaultStyle.option.selected, _this.props.optionStyleSelected),
+          styleDisabled: _objectSpread({}, !_this.props.noDefaultStyles && defaultStyle.option.disabled, _this.props.optionStyleDisabled)
         });
       });
     });
@@ -136,30 +234,34 @@ function (_React$Component) {
           selectedOptionIdx: _this.props.options.indexOf(option)
         });
       }
+
+      _this.controls && _this.controls.focus();
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDocumentKeyDown", function (e) {
       switch (e.key) {
         case "ArrowUp":
-          _this.dropdownOpened ? _this.focusOption("up") : false;
+          _this.state.opened ? _this.focusOption("up") : _this.selectValue("up");
           break;
 
         case "ArrowDown":
-          _this.dropdownOpened ? _this.focusOption("down") : false;
+          _this.state.opened ? _this.focusOption("down") : _this.selectValue("down");
           break;
 
         case "Home":
-          _this.dropdownOpened && _this.focusOption("first");
+          _this.state.opened ? _this.focusOption("first") : _this.selectValue("first");
           break;
 
         case "End":
-          _this.dropdownOpened && _this.focusOption("last");
+          _this.state.opened ? _this.focusOption("last") : _this.selectValue("last");
           break;
 
         case "Enter":
-          _this.dropdownOpened && _this.setState({
+          _this.state.opened ? _this.setState({
             selectedOption: _this.state.focusedOption,
             selectedOptionIdx: _this.state.focusedOptionIdx
+          }) : _this.setState({
+            opened: true
           });
           break;
       }
@@ -170,28 +272,42 @@ function (_React$Component) {
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDropdownOpen", function () {
       _this.props.onOpen && _this.props.onOpen.call(_assertThisInitialized(_assertThisInitialized(_this)));
       _this.wrapper && _this.wrapper.classList.add("EzSelect-opened");
-      _this.dropdownOpened = true;
+
+      _this.setState({
+        opened: true
+      });
+
       document.body.addEventListener("keydown", _this.handleDocumentKeyDown);
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDropdownClose", function () {
       _this.props.onClose && _this.props.onClose.call(_assertThisInitialized(_assertThisInitialized(_this)));
       _this.wrapper && _this.wrapper.classList.remove("EzSelect-opened");
-      _this.dropdownOpened = false;
+
+      _this.setState({
+        opened: false
+      });
+
       document.body.removeEventListener("keydown", _this.handleDocumentKeyDown);
     });
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleFocus", function () {});
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleFocus", function () {
+      document.body.addEventListener("keydown", _this.handleDocumentKeyDown);
+    });
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleBlur", function () {});
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleBlur", function () {
+      document.body.removeEventListener("keydown", _this.handleDocumentKeyDown);
+    });
 
-    _this.dropdownOpened = false;
+    var _preselected = _this.getPreselectedOption();
+
     _this.state = {
-      value: null,
-      focusedOption: null,
-      focusedOptionIdx: -1,
-      selectedOption: null,
-      selectedOptionIdx: -1
+      value: undefined,
+      focusedOption: (_preselected$option = _preselected.option) !== null && _preselected$option !== void 0 ? _preselected$option : undefined,
+      focusedOptionIdx: _preselected.index,
+      selectedOption: (_preselected$option2 = _preselected.option) !== null && _preselected$option2 !== void 0 ? _preselected$option2 : undefined,
+      selectedOptionIdx: _preselected.index,
+      opened: false
     };
     return _this;
   }
@@ -199,6 +315,20 @@ function (_React$Component) {
   _createClass(Select, [{
     key: "componentDidMount",
     value: function componentDidMount() {}
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps) {
+      if (this.props.opened !== prevProps.opened && this.props.opened !== this.state.opened) {
+        this.setState({
+          opened: this.props.opened
+        });
+        return false;
+      }
+
+      if (this.props.options !== prevProps.options) {
+        this.actualizeSelectedAndFocusedOptions();
+      }
+    }
   }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
@@ -237,6 +367,40 @@ function (_React$Component) {
       });
     }
   }, {
+    key: "selectValue",
+    value: function selectValue() {
+      var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "first";
+      var selectedOptionIdx = this.state.selectedOptionIdx;
+      var options = this.props.options;
+      var idxToSelect;
+
+      switch (direction) {
+        case "up":
+          idxToSelect = selectedOptionIdx > 0 ? selectedOptionIdx - 1 : options.length - 1;
+          break;
+
+        case "down":
+          idxToSelect = (selectedOptionIdx + 1) % options.length;
+          break;
+
+        case "last":
+          idxToSelect = options.length - 1;
+          break;
+
+        case "first":
+        default:
+          idxToSelect = 0;
+          break;
+      }
+
+      this.setState({
+        selectedOptionIdx: idxToSelect,
+        selectedOption: options[idxToSelect],
+        focusedOptionIdx: idxToSelect,
+        focusedOption: options[idxToSelect]
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this2 = this;
@@ -245,73 +409,80 @@ function (_React$Component) {
           removeDropdownOnHide = _this$props.removeDropdownOnHide,
           options = _this$props.options,
           noDefaultStyles = _this$props.noDefaultStyles,
+          noArrow = _this$props.noArrow,
           tagName = _this$props.tagName,
           className = _this$props.className,
           style = _this$props.style,
+          openedStyle = _this$props.openedStyle,
           tabIndex = _this$props.tabIndex,
-          placeholderTagName = _this$props.placeholderTagName,
+          controlsClassName = _this$props.controlsClassName,
+          controlsStyle = _this$props.controlsStyle,
+          controlsOpenedStyle = _this$props.controlsOpenedStyle,
           placeholderClassName = _this$props.placeholderClassName,
           placeholderStyle = _this$props.placeholderStyle,
-          arrowTagName = _this$props.arrowTagName,
+          placeholderOpenedStyle = _this$props.placeholderOpenedStyle,
           arrowClassName = _this$props.arrowClassName,
           arrowStyle = _this$props.arrowStyle,
-          arrowContent = _this$props.arrowContent,
-          dropdownTagName = _this$props.dropdownTagName,
+          arrowOpenedStyle = _this$props.arrowOpenedStyle,
           dropdownClassName = _this$props.dropdownClassName,
           dropdownStyle = _this$props.dropdownStyle,
+          dropdownOpenedStyle = _this$props.dropdownOpenedStyle,
           placeholder = _this$props.placeholder,
+          placeholderMediator = _this$props.placeholderMediator,
+          arrowContent = _this$props.arrowContent,
           onOpen = _this$props.onOpen,
           onClose = _this$props.onClose,
           onChange = _this$props.onChange,
-          props = _objectWithoutProperties(_this$props, ["removeDropdownOnHide", "options", "noDefaultStyles", "tagName", "className", "style", "tabIndex", "placeholderTagName", "placeholderClassName", "placeholderStyle", "arrowTagName", "arrowClassName", "arrowStyle", "arrowContent", "dropdownTagName", "dropdownClassName", "dropdownStyle", "placeholder", "onOpen", "onClose", "onChange"]);
+          props = _objectWithoutProperties(_this$props, ["removeDropdownOnHide", "options", "noDefaultStyles", "noArrow", "tagName", "className", "style", "openedStyle", "tabIndex", "controlsClassName", "controlsStyle", "controlsOpenedStyle", "placeholderClassName", "placeholderStyle", "placeholderOpenedStyle", "arrowClassName", "arrowStyle", "arrowOpenedStyle", "dropdownClassName", "dropdownStyle", "dropdownOpenedStyle", "placeholder", "placeholderMediator", "arrowContent", "onOpen", "onClose", "onChange"]),
+          _this$state = this.state,
+          opened = _this$state.opened,
+          selectedOption = _this$state.selectedOption;
 
       var wrapperClassNames = "EzSelect" + (className ? " " + className : ""),
+          controlsClassNames = "EzSelect-controls" + (controlsClassName ? " " + controlsClassName : ""),
           placeholderClassNames = "EzSelect-placeholder" + (placeholderClassName ? " " + placeholderClassName : ""),
           arrowClassNames = "EzSelect-arrow" + (arrowClassName ? " " + arrowClassName : ""),
           dropdownClassNames = "EzSelect-dropdown" + (dropdownClassName ? " " + dropdownClassName : "");
 
-      var wrapperStyles = _objectSpread({}, !noDefaultStyles && defaultStyles.wrapper, style),
-          placeholderStyles = _objectSpread({}, !noDefaultStyles && defaultStyles.placeholder, placeholderStyle),
-          arrowStyles = _objectSpread({}, !noDefaultStyles && defaultStyles.arrow, arrowStyle),
-          dropdownStyles = _objectSpread({}, !noDefaultStyles && defaultStyles.dropdown, dropdownStyle);
+      var wrapperStyles = _objectSpread({}, style, opened && openedStyle),
+          controlsStyles = _objectSpread({}, controlsStyle, opened && controlsOpenedStyle),
+          placeholderStyles = _objectSpread({}, placeholderStyle, opened && placeholderOpenedStyle),
+          arrowStyles = _objectSpread({}, arrowStyle, opened && arrowOpenedStyle),
+          dropdownStyles = _objectSpread({}, dropdownStyle, opened && dropdownOpenedStyle);
+
+      if (!noDefaultStyles) {
+        wrapperStyles = _objectSpread({}, defaultStyle.wrapper.regular, opened && defaultStyle.wrapper.opened, wrapperStyles);
+        controlsStyles = _objectSpread({}, defaultStyle.controls.regular, opened && defaultStyle.controls.opened, controlsStyles);
+        placeholderStyles = _objectSpread({}, defaultStyle.placeholder.regular, opened && defaultStyle.placeholder.opened, placeholderStyles);
+        arrowStyles = _objectSpread({}, defaultStyle.arrow.regular, opened && defaultStyle.arrow.opened, arrowStyles);
+        dropdownStyles = _objectSpread({}, defaultStyle.dropdown.regular, opened && defaultStyle.dropdown.opened, dropdownStyles);
+      }
 
       return _react.default.createElement(tagName, _objectSpread({}, props, {
         className: wrapperClassNames,
         style: wrapperStyles,
-        ref: function ref(_ref) {
-          return _this2.wrapper = _ref;
-        },
         key: "EzSelect",
-        tabIndex: tabIndex,
-        onFocus: this.handleFocus,
-        onBlur: this.handleBlur,
-        children: _react.default.createElement(_reactEzDropdown.Dropdown, {
-          key: "EzSelect-dropdown"
-        }, _react.default.createElement(_reactEzDropdown.DropdownTrigger, {
-          tagName: placeholderTagName,
+        children: _react.default.createElement(_reactEzDropdown.Dropdown, null, _react.default.createElement(_reactEzDropdown.DropdownTrigger, {
+          className: controlsClassNames,
+          style: controlsStyles,
+          tabIndex: tabIndex,
+          onFocus: this.handleFocus,
+          onBlur: this.handleBlur,
+          ref: function ref(_ref) {
+            return _this2.controls = _ref;
+          }
+        }, _react.default.createElement("div", {
           className: placeholderClassNames,
-          style: placeholderStyles,
-          ref: function ref(_ref2) {
-            return _this2.placeholder = _ref2;
-          },
-          key: "EzSelect-placeholder"
-        }, placeholder), _react.default.createElement(_reactEzDropdown.DropdownTrigger, {
-          tagName: arrowTagName,
+          style: placeholderStyles
+        }, typeof selectedOption === "undefined" ? placeholder : !!placeholderMediator ? placeholderMediator(selectedOption) : selectedOption.label), !noArrow && _react.default.createElement("div", {
           className: arrowClassNames,
-          style: arrowStyles,
-          ref: function ref(_ref3) {
-            return _this2.arrow = _ref3;
-          },
-          key: "EzSelect-arrow"
-        }, arrowContent), _react.default.createElement(_reactEzDropdown.DropdownContent, {
-          tagName: dropdownTagName,
+          style: arrowStyles
+        }, arrowContent)), _react.default.createElement(_reactEzDropdown.DropdownContent, {
           removeOnHide: removeDropdownOnHide,
           className: dropdownClassNames,
           style: dropdownStyles,
-          ref: function ref(_ref4) {
-            return _this2.dropdown = _ref4;
-          },
           key: "EzSelect-dropdown",
+          opened: opened,
           onShow: this.handleDropdownOpen,
           onHide: this.handleDropdownClose
         }, this.renderOptions()))
@@ -327,26 +498,40 @@ exports.default = Select;
 _defineProperty(Select, "propTypes", {
   options: _propTypes.default.arrayOf(_propTypes.default.shape({
     value: _propTypes.default.any.isRequired,
-    label: _propTypes.default.any.isRequired
+    label: _propTypes.default.any.isRequired,
+    disabled: _propTypes.default.bool,
+    selected: _propTypes.default.bool,
+    default: _propTypes.default.bool
   })),
-  placeholder: _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.number, _propTypes.default.element]),
-  arrowContent: _propTypes.default.oneOfType([_propTypes.default.string, _propTypes.default.number, _propTypes.default.element]),
+  placeholder: _propTypes.default.any,
+  placeholderMediator: _propTypes.default.func,
+  arrowContent: _propTypes.default.any,
   removeDropdownOnHide: _propTypes.default.bool,
   noDefaultStyles: _propTypes.default.bool,
+  noArrow: _propTypes.default.bool,
   tagName: _propTypes.default.string,
   className: _propTypes.default.string,
   style: _propTypes.default.object,
+  openedStyle: _propTypes.default.object,
   tabIndex: _propTypes.default.string,
-  placeholderTagName: _propTypes.default.string,
+  controlsClassName: _propTypes.default.string,
+  controlsStyle: _propTypes.default.object,
+  controlsOpenedStyle: _propTypes.default.object,
   placeholderClassName: _propTypes.default.string,
   placeholderStyle: _propTypes.default.object,
-  arrowTagName: _propTypes.default.string,
+  placeholderOpenedStyle: _propTypes.default.object,
   arrowClassName: _propTypes.default.string,
   arrowStyle: _propTypes.default.object,
-  dropdownTagName: _propTypes.default.string,
+  arrowOpenedStyle: _propTypes.default.object,
   dropdownClassName: _propTypes.default.string,
   dropdownStyle: _propTypes.default.object,
+  dropdownOpenedStyle: _propTypes.default.object,
+  optionStyle: _propTypes.default.object,
+  optionStyleDisabled: _propTypes.default.object,
+  optionStyleFocused: _propTypes.default.object,
+  optionStyleSelected: _propTypes.default.object,
   onChange: _propTypes.default.func,
+  onInput: _propTypes.default.func,
   onOpen: _propTypes.default.func,
   onClose: _propTypes.default.func
 });
@@ -354,7 +539,9 @@ _defineProperty(Select, "propTypes", {
 _defineProperty(Select, "defaultProps", {
   removeDropdownOnHide: false,
   noDefaultStyles: false,
-  tabIndex: '0',
+  noArrow: false,
+  tagName: "div",
+  tabIndex: "0",
   arrowContent: _react.default.createElement("svg", {
     "aria-hidden": "true",
     role: "img",
@@ -369,9 +556,5 @@ _defineProperty(Select, "defaultProps", {
     fill: "currentColor",
     d: "M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"
   })),
-  placeholder: "Select...",
-  tagName: "div",
-  placeholderTagName: "div",
-  arrowTagName: "div",
-  dropdownTagName: "div"
+  placeholder: "Select..."
 });
