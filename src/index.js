@@ -456,6 +456,10 @@ export default class Select extends React.Component {
 
     handleBlur = () => {
         document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
+        this.state.opened &&
+            this.setState({
+                opened: false,
+            });
     };
 
     render() {

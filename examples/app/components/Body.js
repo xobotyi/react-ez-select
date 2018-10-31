@@ -24,7 +24,7 @@ export default class Head extends React.Component {
                 <div className="packageDescription" />
 
                 <h2>Examples</h2>
-                <Select options={this.state.options} />
+                <Select options={this.state.options} style={{margin: "2rem 0 0 2rem"}} />
             </div>
         );
     }

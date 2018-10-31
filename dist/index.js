@@ -231,6 +231,9 @@ function (_React$Component) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleBlur", function () {
       document.body.removeEventListener("keydown", _this.handleDocumentKeyDown);
+      _this.state.opened && _this.setState({
+        opened: false
+      });
     });
 
     var preselected = _this.getPreselectedOption();
