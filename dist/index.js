@@ -123,91 +123,6 @@ function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Select).call(this, props));
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getPreselectedOption", function () {
-      var result = {
-        option: null,
-        index: -1
-      };
-
-      for (var i = 0; i < _this.props.options.length; i++) {
-        if (_this.props.options[i].selected) {
-          result.option = _this.props.options[i];
-          result.index = i;
-          break;
-        }
-      }
-
-      return result;
-    });
-
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "actualizeSelectedAndFocusedOptions", function () {
-      var newState = {
-        selectedOption: null,
-        selectedOptionIdx: -1,
-        focusedOption: null,
-        focusedOptionIdx: -1
-      };
-
-      if (_this.state.selectedOption || _this.state.focusedOption) {
-        for (var i = 0; i < _this.props.options.length; i++) {
-          if (!newState.selectedOption && _this.state.selectedOption && _this.props.options[i].value === _this.state.selectedOption.value) {
-            newState.selectedOption = _this.props.options[i];
-            newState.selectedOptionIdx = i;
-          }
-
-          if (!newState.focusedOption && _this.state.focusedOption && _this.props.options[i].value === _this.state.focusedOption.value) {
-            newState.focusedOption = _this.props.options[i];
-            newState.focusedOptionIdx = i;
-          }
-
-          if (newState.focusedOption && newState.selectedOption) {
-            break;
-          }
-        }
-      }
-
-      if (!newState.selectedOption) {
-        var preselected = _this.getPreselectedOption();
-
-        if (preselected.option) {
-          newState.selectedOption = preselected.option;
-          newState.selectedOptionIdx = preselected.index;
-
-          if (!newState.focusedOption) {
-            newState.focusedOption = preselected.option;
-            newState.focusedOptionIdx = preselected.index;
-          }
-        }
-      }
-
-      _this.setState(newState);
-    });
-
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "renderOptions", function () {
-      if (!_this.props.options || !_this.props.options.length) {
-        return false;
-      }
-
-      return _this.props.options.map(function (option) {
-        var _option$disabled;
-
-        return _react.default.createElement(_SingleOption.default, {
-          key: "option_".concat(option.value),
-          option: option,
-          focused: _this.state.focusedOption === option,
-          selected: _this.state.selectedOption === option,
-          disabled: (_option$disabled = option.disabled) !== null && _option$disabled !== void 0 ? _option$disabled : false,
-          onFocus: _this.handleOptionFocus,
-          onBlur: _this.handleOptionBlur,
-          onClick: _this.handleOptionClick,
-          style: _objectSpread({}, !_this.props.noDefaultStyles && defaultStyle.option.regular, _this.props.optionStyle),
-          styleFocused: _objectSpread({}, !_this.props.noDefaultStyles && defaultStyle.option.focused, _this.props.optionStyleFocused),
-          styleSelected: _objectSpread({}, !_this.props.noDefaultStyles && defaultStyle.option.selected, _this.props.optionStyleSelected),
-          styleDisabled: _objectSpread({}, !_this.props.noDefaultStyles && defaultStyle.option.disabled, _this.props.optionStyleDisabled)
-        });
-      });
-    });
-
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleOptionFocus", function (option) {
       if (_this.state.focusedOption !== option) {
         _this.setState({
@@ -227,46 +142,65 @@ function (_React$Component) {
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleOptionClick", function (option) {
+      _this.controls && _this.controls.triggerElement.focus();
+      _this.props.onInput && _this.props.onInput.call(_assertThisInitialized(_assertThisInitialized(_this)), option.value);
+
       if (_this.state.selectedOption !== option) {
         _this.setState({
+          opened: _this.props.closeMenuOnSelect ? false : _this.state.opened,
           value: option.value,
           selectedOption: option,
           selectedOptionIdx: _this.props.options.indexOf(option)
         });
+      } else if (_this.props.closeMenuOnSelect) {
+        _this.setState({
+          opened: false
+        });
       }
-
-      _this.controls && _this.controls.focus();
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDocumentKeyDown", function (e) {
       switch (e.key) {
         case "ArrowUp":
+          e.preventDefault();
           _this.state.opened ? _this.focusOption("up") : _this.selectValue("up");
           break;
 
         case "ArrowDown":
+          e.preventDefault();
           _this.state.opened ? _this.focusOption("down") : _this.selectValue("down");
           break;
 
         case "Home":
+          e.preventDefault();
           _this.state.opened ? _this.focusOption("first") : _this.selectValue("first");
           break;
 
         case "End":
+          e.preventDefault();
           _this.state.opened ? _this.focusOption("last") : _this.selectValue("last");
           break;
 
         case "Enter":
-          _this.state.opened ? _this.setState({
-            selectedOption: _this.state.focusedOption,
-            selectedOptionIdx: _this.state.focusedOptionIdx
-          }) : _this.setState({
-            opened: true
-          });
+          e.preventDefault();
+
+          if (_this.state.opened) {
+            _this.props.onInput && _this.props.onInput.call(_assertThisInitialized(_assertThisInitialized(_this)), option.value);
+            _this.controls && _this.controls.triggerElement.focus();
+
+            _this.setState({
+              opened: _this.props.closeMenuOnSelect ? false : _this.state.opened,
+              selectedOption: _this.state.focusedOption,
+              selectedOptionIdx: _this.state.focusedOptionIdx
+            });
+          } else {
+            _this.setState({
+              opened: true
+            });
+          }
+
           break;
       }
-
-      e.preventDefault();
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDropdownOpen", function () {
@@ -288,7 +222,7 @@ function (_React$Component) {
         opened: false
       });
 
-      document.body.removeEventListener("keydown", _this.handleDocumentKeyDown);
+      _this.controls.triggerElement !== document.activeElement && document.body.removeEventListener("keydown", _this.handleDocumentKeyDown);
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleFocus", function () {
@@ -299,40 +233,134 @@ function (_React$Component) {
       document.body.removeEventListener("keydown", _this.handleDocumentKeyDown);
     });
 
-    var _preselected = _this.getPreselectedOption();
+    var preselected = _this.getPreselectedOption();
 
     _this.state = {
       value: undefined,
-      focusedOption: (_preselected$option = _preselected.option) !== null && _preselected$option !== void 0 ? _preselected$option : undefined,
-      focusedOptionIdx: _preselected.index,
-      selectedOption: (_preselected$option2 = _preselected.option) !== null && _preselected$option2 !== void 0 ? _preselected$option2 : undefined,
-      selectedOptionIdx: _preselected.index,
+      focusedOption: (_preselected$option = preselected.option) !== null && _preselected$option !== void 0 ? _preselected$option : undefined,
+      focusedOptionIdx: preselected.index,
+      selectedOption: (_preselected$option2 = preselected.option) !== null && _preselected$option2 !== void 0 ? _preselected$option2 : undefined,
+      selectedOptionIdx: preselected.index,
       opened: false
     };
     return _this;
   }
 
   _createClass(Select, [{
+    key: "getPreselectedOption",
+    value: function getPreselectedOption() {
+      var result = {
+        option: null,
+        index: -1
+      };
+
+      for (var i = 0; i < this.props.options.length; i++) {
+        if (this.props.options[i].selected) {
+          result.option = this.props.options[i];
+          result.index = i;
+          break;
+        }
+      }
+
+      return result;
+    }
+  }, {
+    key: "actualizeSelectedAndFocusedOptions",
+    value: function actualizeSelectedAndFocusedOptions() {
+      var newState = {
+        selectedOption: null,
+        selectedOptionIdx: -1,
+        focusedOption: null,
+        focusedOptionIdx: -1
+      };
+
+      if (this.state.selectedOption || this.state.focusedOption) {
+        for (var i = 0; i < this.props.options.length; i++) {
+          if (!newState.selectedOption && this.state.selectedOption && this.props.options[i].value === this.state.selectedOption.value) {
+            newState.selectedOption = this.props.options[i];
+            newState.selectedOptionIdx = i;
+          }
+
+          if (!newState.focusedOption && this.state.focusedOption && this.props.options[i].value === this.state.focusedOption.value) {
+            newState.focusedOption = this.props.options[i];
+            newState.focusedOptionIdx = i;
+          }
+
+          if (newState.focusedOption && newState.selectedOption) {
+            break;
+          }
+        }
+      }
+
+      if (!newState.selectedOption) {
+        var preselected = this.getPreselectedOption();
+
+        if (preselected.option) {
+          newState.selectedOption = preselected.option;
+          newState.selectedOptionIdx = preselected.index;
+
+          if (!newState.focusedOption) {
+            newState.focusedOption = preselected.option;
+            newState.focusedOptionIdx = preselected.index;
+          }
+        }
+      }
+
+      this.setState(newState);
+    }
+  }, {
     key: "componentDidMount",
     value: function componentDidMount() {}
   }, {
     key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps) {
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (prevState.value !== this.state.value) {
+        this.props.onChange && this.props.onChange.call(this, this.state.value);
+      }
+
+      if (this.props.options !== prevProps.options) {
+        this.actualizeSelectedAndFocusedOptions();
+      }
+
       if (this.props.opened !== prevProps.opened && this.props.opened !== this.state.opened) {
         this.setState({
           opened: this.props.opened
         });
         return false;
       }
-
-      if (this.props.options !== prevProps.options) {
-        this.actualizeSelectedAndFocusedOptions();
-      }
     }
   }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
+    }
+  }, {
+    key: "renderOptions",
+    value: function renderOptions() {
+      var _this2 = this;
+
+      if (!this.props.options || !this.props.options.length) {
+        return false;
+      }
+
+      return this.props.options.map(function (option) {
+        var _option$disabled;
+
+        return _react.default.createElement(_SingleOption.default, {
+          key: "option_".concat(option.value),
+          option: option,
+          focused: _this2.state.focusedOption === option,
+          selected: _this2.state.selectedOption === option,
+          disabled: (_option$disabled = option.disabled) !== null && _option$disabled !== void 0 ? _option$disabled : false,
+          onFocus: _this2.handleOptionFocus,
+          onBlur: _this2.handleOptionBlur,
+          onClick: _this2.handleOptionClick,
+          style: _objectSpread({}, !_this2.props.noDefaultStyles && defaultStyle.option.regular, _this2.props.optionStyle),
+          styleFocused: _objectSpread({}, !_this2.props.noDefaultStyles && defaultStyle.option.focused, _this2.props.optionStyleFocused),
+          styleSelected: _objectSpread({}, !_this2.props.noDefaultStyles && defaultStyle.option.selected, _this2.props.optionStyleSelected),
+          styleDisabled: _objectSpread({}, !_this2.props.noDefaultStyles && defaultStyle.option.disabled, _this2.props.optionStyleDisabled)
+        });
+      });
     }
   }, {
     key: "focusOption",
@@ -403,12 +431,13 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       var _this$props = this.props,
-          removeDropdownOnHide = _this$props.removeDropdownOnHide,
           options = _this$props.options,
+          removeDropdownOnHide = _this$props.removeDropdownOnHide,
           noDefaultStyles = _this$props.noDefaultStyles,
+          closeMenuOnSelect = _this$props.closeMenuOnSelect,
           noArrow = _this$props.noArrow,
           tagName = _this$props.tagName,
           className = _this$props.className,
@@ -433,7 +462,7 @@ function (_React$Component) {
           onOpen = _this$props.onOpen,
           onClose = _this$props.onClose,
           onChange = _this$props.onChange,
-          props = _objectWithoutProperties(_this$props, ["removeDropdownOnHide", "options", "noDefaultStyles", "noArrow", "tagName", "className", "style", "openedStyle", "tabIndex", "controlsClassName", "controlsStyle", "controlsOpenedStyle", "placeholderClassName", "placeholderStyle", "placeholderOpenedStyle", "arrowClassName", "arrowStyle", "arrowOpenedStyle", "dropdownClassName", "dropdownStyle", "dropdownOpenedStyle", "placeholder", "placeholderMediator", "arrowContent", "onOpen", "onClose", "onChange"]),
+          props = _objectWithoutProperties(_this$props, ["options", "removeDropdownOnHide", "noDefaultStyles", "closeMenuOnSelect", "noArrow", "tagName", "className", "style", "openedStyle", "tabIndex", "controlsClassName", "controlsStyle", "controlsOpenedStyle", "placeholderClassName", "placeholderStyle", "placeholderOpenedStyle", "arrowClassName", "arrowStyle", "arrowOpenedStyle", "dropdownClassName", "dropdownStyle", "dropdownOpenedStyle", "placeholder", "placeholderMediator", "arrowContent", "onOpen", "onClose", "onChange"]),
           _this$state = this.state,
           opened = _this$state.opened,
           selectedOption = _this$state.selectedOption;
@@ -463,20 +492,23 @@ function (_React$Component) {
         style: wrapperStyles,
         key: "EzSelect",
         children: _react.default.createElement(_reactEzDropdown.Dropdown, null, _react.default.createElement(_reactEzDropdown.DropdownTrigger, {
+          key: "EzSelect-controls",
           className: controlsClassNames,
           style: controlsStyles,
           tabIndex: tabIndex,
           onFocus: this.handleFocus,
           onBlur: this.handleBlur,
           ref: function ref(_ref) {
-            return _this2.controls = _ref;
+            return _this3.controls = _ref;
           }
         }, _react.default.createElement("div", {
           className: placeholderClassNames,
-          style: placeholderStyles
+          style: placeholderStyles,
+          key: "EzSelect-placeholder"
         }, typeof selectedOption === "undefined" ? placeholder : !!placeholderMediator ? placeholderMediator(selectedOption) : selectedOption.label), !noArrow && _react.default.createElement("div", {
           className: arrowClassNames,
-          style: arrowStyles
+          style: arrowStyles,
+          key: "EzSelect-arrow"
         }, arrowContent)), _react.default.createElement(_reactEzDropdown.DropdownContent, {
           removeOnHide: removeDropdownOnHide,
           className: dropdownClassNames,
@@ -507,6 +539,7 @@ _defineProperty(Select, "propTypes", {
   placeholderMediator: _propTypes.default.func,
   arrowContent: _propTypes.default.any,
   removeDropdownOnHide: _propTypes.default.bool,
+  closeMenuOnSelect: _propTypes.default.bool,
   noDefaultStyles: _propTypes.default.bool,
   noArrow: _propTypes.default.bool,
   tagName: _propTypes.default.string,
@@ -537,6 +570,7 @@ _defineProperty(Select, "propTypes", {
 });
 
 _defineProperty(Select, "defaultProps", {
+  closeMenuOnSelect: true,
   removeDropdownOnHide: false,
   noDefaultStyles: false,
   noArrow: false,

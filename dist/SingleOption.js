@@ -59,27 +59,6 @@ function (_React$Component) {
       _this.props.onClick && _this.props.onClick.call(_assertThisInitialized(_assertThisInitialized(_this)), _this.props.option);
     });
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "setDisabled", function () {
-      var disabled = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      disabled !== null && _this.setState({
-        disabled: !!disabled
-      });
-    });
-
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "setSelected", function () {
-      var selected = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      selected !== null && _this.setState({
-        selected: !!selected
-      });
-    });
-
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "setFocused", function () {
-      var focused = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      focused !== null && _this.setState({
-        focused: !!focused
-      });
-    });
-
     _this.state = {
       disabled: (_ref = (_this$props$disabled = _this.props.disabled) !== null && _this$props$disabled !== void 0 ? _this$props$disabled : _this.props.option.disabled) !== null && _ref !== void 0 ? _ref : false,
       selected: (_ref2 = (_this$props$selected = _this.props.selected) !== null && _this$props$selected !== void 0 ? _this$props$selected : _this.props.option.selected) !== null && _ref2 !== void 0 ? _ref2 : false,
@@ -94,6 +73,30 @@ function (_React$Component) {
       prevProps.disabled !== this.props.disabled && this.props.disabled !== this.state.disabled && this.setDisabled(this.props.disabled);
       prevProps.selected !== this.props.selected && this.props.selected !== this.state.selected && this.setSelected(this.props.selected);
       prevProps.focused !== this.props.focused && this.props.focused !== this.state.focused && this.setFocused(this.props.focused);
+    }
+  }, {
+    key: "setDisabled",
+    value: function setDisabled() {
+      var disabled = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      disabled !== null && this.setState({
+        disabled: !!disabled
+      });
+    }
+  }, {
+    key: "setSelected",
+    value: function setSelected() {
+      var selected = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      selected !== null && this.setState({
+        selected: !!selected
+      });
+    }
+  }, {
+    key: "setFocused",
+    value: function setFocused() {
+      var focused = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      focused !== null && this.setState({
+        focused: !!focused
+      });
     }
   }, {
     key: "render",

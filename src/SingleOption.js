@@ -67,15 +67,17 @@ export default class SingleOption extends React.Component {
         this.props.onClick && this.props.onClick.call(this, this.props.option);
     };
 
-    setDisabled = (disabled = null) => {
+    setDisabled(disabled = null) {
         disabled !== null && this.setState({disabled: !!disabled});
-    };
-    setSelected = (selected = null) => {
+    }
+
+    setSelected(selected = null) {
         selected !== null && this.setState({selected: !!selected});
-    };
-    setFocused = (focused = null) => {
+    }
+
+    setFocused(focused = null) {
         focused !== null && this.setState({focused: !!focused});
-    };
+    }
 
     render() {
         const {

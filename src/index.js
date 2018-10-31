@@ -87,6 +87,7 @@ export default class Select extends React.Component {
         arrowContent: PropTypes.any,
 
         removeDropdownOnHide: PropTypes.bool,
+        closeMenuOnSelect: PropTypes.bool,
         noDefaultStyles: PropTypes.bool,
         noArrow: PropTypes.bool,
 
@@ -124,6 +125,7 @@ export default class Select extends React.Component {
     };
 
     static defaultProps = {
+        closeMenuOnSelect: true,
         removeDropdownOnHide: false,
         noDefaultStyles: false,
         noArrow: false,
@@ -163,7 +165,7 @@ export default class Select extends React.Component {
         };
     }
 
-    getPreselectedOption = () => {
+    getPreselectedOption() {
         const result = {
             option: null,
             index: -1,
@@ -178,9 +180,9 @@ export default class Select extends React.Component {
         }
 
         return result;
-    };
+    }
 
-    actualizeSelectedAndFocusedOptions = () => {
+    actualizeSelectedAndFocusedOptions() {
         const newState = {
             selectedOption: null,
             selectedOptionIdx: -1,
@@ -229,18 +231,22 @@ export default class Select extends React.Component {
         }
 
         this.setState(newState);
-    };
+    }
 
     componentDidMount() {}
 
-    componentDidUpdate(prevProps) {
-        if (this.props.opened !== prevProps.opened && this.props.opened !== this.state.opened) {
-            this.setState({opened: this.props.opened});
-            return false;
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.value !== this.state.value) {
+            this.props.onChange && this.props.onChange.call(this, this.state.value);
         }
 
         if (this.props.options !== prevProps.options) {
             this.actualizeSelectedAndFocusedOptions();
+        }
+
+        if (this.props.opened !== prevProps.opened && this.props.opened !== this.state.opened) {
+            this.setState({opened: this.props.opened});
+            return false;
         }
     }
 
@@ -248,7 +254,7 @@ export default class Select extends React.Component {
         document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
     }
 
-    renderOptions = () => {
+    renderOptions() {
         if (!this.props.options || !this.props.options.length) {
             return false;
         }
@@ -280,7 +286,7 @@ export default class Select extends React.Component {
                 />
             );
         });
-    };
+    }
 
     handleOptionFocus = option => {
         if (this.state.focusedOption !== option) {
@@ -301,15 +307,22 @@ export default class Select extends React.Component {
     };
 
     handleOptionClick = option => {
+        this.controls && this.controls.triggerElement.focus();
+
+        this.props.onInput && this.props.onInput.call(this, option.value);
+
         if (this.state.selectedOption !== option) {
             this.setState({
+                opened: this.props.closeMenuOnSelect ? false : this.state.opened,
                 value: option.value,
                 selectedOption: option,
                 selectedOptionIdx: this.props.options.indexOf(option),
             });
+        } else if (this.props.closeMenuOnSelect) {
+            this.setState({
+                opened: false,
+            });
         }
-
-        this.controls && this.controls.focus();
     };
 
     focusOption(direction = "first") {
@@ -377,38 +390,47 @@ export default class Select extends React.Component {
     handleDocumentKeyDown = e => {
         switch (e.key) {
             case "ArrowUp":
+                e.preventDefault();
                 this.state.opened ? this.focusOption("up") : this.selectValue("up");
 
                 break;
 
             case "ArrowDown":
+                e.preventDefault();
                 this.state.opened ? this.focusOption("down") : this.selectValue("down");
 
                 break;
 
             case "Home":
+                e.preventDefault();
                 this.state.opened ? this.focusOption("first") : this.selectValue("first");
 
                 break;
 
             case "End":
+                e.preventDefault();
                 this.state.opened ? this.focusOption("last") : this.selectValue("last");
 
                 break;
 
             case "Enter":
-                this.state.opened
-                    ? this.setState({
-                          selectedOption: this.state.focusedOption,
-                          selectedOptionIdx: this.state.focusedOptionIdx,
-                      })
-                    : this.setState({
-                          opened: true,
-                      });
+                e.preventDefault();
+                if (this.state.opened) {
+                    this.props.onInput && this.props.onInput.call(this, option.value);
+                    this.controls && this.controls.triggerElement.focus();
+
+                    this.setState({
+                        opened: this.props.closeMenuOnSelect ? false : this.state.opened,
+                        selectedOption: this.state.focusedOption,
+                        selectedOptionIdx: this.state.focusedOptionIdx,
+                    });
+                } else {
+                    this.setState({
+                        opened: true,
+                    });
+                }
                 break;
         }
-
-        e.preventDefault();
     };
 
     handleDropdownOpen = () => {
@@ -424,7 +446,8 @@ export default class Select extends React.Component {
         this.wrapper && this.wrapper.classList.remove("EzSelect-opened");
         this.setState({opened: false});
 
-        document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
+        this.controls.triggerElement !== document.activeElement &&
+            document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
     };
 
     handleFocus = () => {
@@ -437,9 +460,11 @@ export default class Select extends React.Component {
 
     render() {
         const {
-                removeDropdownOnHide,
                 options,
+
+                removeDropdownOnHide,
                 noDefaultStyles,
+                closeMenuOnSelect,
                 noArrow,
 
                 tagName,
@@ -520,13 +545,14 @@ export default class Select extends React.Component {
             children: (
                 <Dropdown>
                     <DropdownTrigger
+                        key="EzSelect-controls"
                         className={controlsClassNames}
                         style={controlsStyles}
                         tabIndex={tabIndex}
                         onFocus={this.handleFocus}
                         onBlur={this.handleBlur}
                         ref={ref => (this.controls = ref)}>
-                        <div className={placeholderClassNames} style={placeholderStyles}>
+                        <div className={placeholderClassNames} style={placeholderStyles} key="EzSelect-placeholder">
                             {typeof selectedOption === "undefined"
                                 ? placeholder
                                 : !!placeholderMediator
@@ -534,7 +560,7 @@ export default class Select extends React.Component {
                                     : selectedOption.label}
                         </div>
                         {!noArrow && (
-                            <div className={arrowClassNames} style={arrowStyles}>
+                            <div className={arrowClassNames} style={arrowStyles} key="EzSelect-arrow">
                                 {arrowContent}
                             </div>
                         )}
