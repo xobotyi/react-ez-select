@@ -96,7 +96,7 @@ var defaultStyle = {
     },
     disabled: {
       cursor: "default",
-      opacity: .5,
+      opacity: 0.5,
       background: "transparent"
     },
     focused: {
