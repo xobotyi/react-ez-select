@@ -163,6 +163,27 @@ function (_React$Component) {
       }
     });
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "setValue", function (value) {
+      var state = {
+        selectedOption: null,
+        selectedOptionIdx: -1,
+        focusedOption: null,
+        focusedOptionIdx: -1
+      };
+
+      for (var i = 0; i < _this.props.options.length; i++) {
+        if (_this.props.options[i].value === value) {
+          state.selectedOption = _this.props.options[i];
+          state.selectedOptionIdx = i;
+          state.focusedOption = _this.props.options[i];
+          state.focusedOptionIdx = i;
+          break;
+        }
+      }
+
+      _this.setState(state);
+    });
+
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDocumentKeyDown", function (e) {
       switch (e.key) {
         case "ArrowUp":
@@ -232,13 +253,19 @@ function (_React$Component) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleFocus", function () {
       document.body.addEventListener("keydown", _this.handleDocumentKeyDown);
+      _this.blurTimeout && clearTimeout(_this.blurTimeout);
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleBlur", function () {
       document.body.removeEventListener("keydown", _this.handleDocumentKeyDown);
-      _this.props.closeMenuOnBlur && _this.state.opened && _this.setState({
-        opened: false
-      });
+
+      if (_this.props.closeMenuOnBlur && _this.state.opened) {
+        _this.blurTimeout = setTimeout(function () {
+          _this.setState({
+            opened: false
+          });
+        }, 15);
+      }
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleScrollbarOnScroll", function (scrollValues) {
@@ -254,7 +281,7 @@ function (_React$Component) {
       focusedOptionIdx: preselected.index,
       selectedOption: (_preselected$option2 = preselected.option) !== null && _preselected$option2 !== void 0 ? _preselected$option2 : undefined,
       selectedOptionIdx: preselected.index,
-      opened: false
+      opened: _this.props.opened || false
     };
     return _this;
   }
@@ -323,10 +350,18 @@ function (_React$Component) {
     }
   }, {
     key: "componentDidMount",
-    value: function componentDidMount() {}
+    value: function componentDidMount() {
+      if (this.props.value) {
+        this.setValue(this.props.value);
+      }
+    }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
+      if (prevProps.value !== this.props.value && this.props.value !== this.state.value) {
+        this.setValue(this.props.value);
+      }
+
       if (prevState.value !== this.state.value) {
         this.props.onChange && this.props.onChange.call(this, this.state.value);
       }
@@ -453,6 +488,8 @@ function (_React$Component) {
 
       var _this$props = this.props,
           options = _this$props.options,
+          value = _this$props.value,
+          propsOpened = _this$props.opened,
           removeMenuOnHide = _this$props.removeMenuOnHide,
           noDefaultStyles = _this$props.noDefaultStyles,
           closeMenuOnSelect = _this$props.closeMenuOnSelect,
@@ -484,7 +521,7 @@ function (_React$Component) {
           onClose = _this$props.onClose,
           onChange = _this$props.onChange,
           scrollbarProps = _this$props.scrollbarProps,
-          props = _objectWithoutProperties(_this$props, ["options", "removeMenuOnHide", "noDefaultStyles", "closeMenuOnSelect", "closeMenuOnBlur", "noArrow", "tagName", "className", "style", "openedStyle", "tabIndex", "controlsClassName", "controlsStyle", "controlsOpenedStyle", "placeholderClassName", "placeholderStyle", "placeholderOpenedStyle", "arrowClassName", "arrowStyle", "arrowOpenedStyle", "menuClassName", "menuStyle", "menuOpenedStyle", "maxMenuHeight", "maxMenuWidth", "placeholder", "placeholderMediator", "arrowContent", "onOpen", "onClose", "onChange", "scrollbarProps"]),
+          props = _objectWithoutProperties(_this$props, ["options", "value", "opened", "removeMenuOnHide", "noDefaultStyles", "closeMenuOnSelect", "closeMenuOnBlur", "noArrow", "tagName", "className", "style", "openedStyle", "tabIndex", "controlsClassName", "controlsStyle", "controlsOpenedStyle", "placeholderClassName", "placeholderStyle", "placeholderOpenedStyle", "arrowClassName", "arrowStyle", "arrowOpenedStyle", "menuClassName", "menuStyle", "menuOpenedStyle", "maxMenuHeight", "maxMenuWidth", "placeholder", "placeholderMediator", "arrowContent", "onOpen", "onClose", "onChange", "scrollbarProps"]),
           _this$state = this.state,
           opened = _this$state.opened,
           selectedOption = _this$state.selectedOption;
@@ -570,6 +607,8 @@ _defineProperty(Select, "propTypes", {
     selected: _propTypes.default.bool,
     default: _propTypes.default.bool
   })),
+  value: _propTypes.default.any,
+  opened: _propTypes.default.bool,
   placeholder: _propTypes.default.any,
   placeholderMediator: _propTypes.default.func,
   arrowContent: _propTypes.default.any,
@@ -614,6 +653,7 @@ _defineProperty(Select, "defaultProps", {
   removeMenuOnHide: false,
   noDefaultStyles: false,
   noArrow: false,
+  opened: false,
   maxMenuHeight: 300,
   maxMenuWidth: null,
   tagName: "div",

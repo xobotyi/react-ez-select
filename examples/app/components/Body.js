@@ -21,7 +21,12 @@ export default class Head extends React.Component {
                 {value: 11, label: "Option 11"},
                 {value: 12, label: "Option 12"},
             ],
+            value: 12,
         };
+
+        setTimeout(() => {
+            this.setState({value: 0});
+        }, 1000);
     }
 
     render() {
@@ -30,7 +35,7 @@ export default class Head extends React.Component {
                 <div className="packageDescription" />
 
                 <h2>Examples</h2>
-                <Select options={this.state.options} style={{margin: "2rem 0 0 2rem"}} />
+                <Select options={this.state.options} style={{margin: "2rem 0 0 2rem"}} value={this.state.value} />
             </div>
         );
     }

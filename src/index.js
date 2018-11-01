@@ -83,6 +83,9 @@ export default class Select extends React.Component {
                 default: PropTypes.bool,
             })
         ),
+        value: PropTypes.any,
+        opened: PropTypes.bool,
+
         placeholder: PropTypes.any,
         placeholderMediator: PropTypes.func,
         arrowContent: PropTypes.any,
@@ -136,6 +139,7 @@ export default class Select extends React.Component {
         removeMenuOnHide: false,
         noDefaultStyles: false,
         noArrow: false,
+        opened: false,
 
         maxMenuHeight: 300,
         maxMenuWidth: null,
@@ -171,7 +175,7 @@ export default class Select extends React.Component {
             selectedOption: preselected.option ?? undefined,
             selectedOptionIdx: preselected.index,
 
-            opened: false,
+            opened: this.props.opened || false,
         };
     }
 
@@ -243,9 +247,17 @@ export default class Select extends React.Component {
         this.setState(newState);
     }
 
-    componentDidMount() {}
+    componentDidMount() {
+        if (this.props.value) {
+            this.setValue(this.props.value);
+        }
+    }
 
     componentDidUpdate(prevProps, prevState) {
+        if (prevProps.value !== this.props.value && this.props.value !== this.state.value) {
+            this.setValue(this.props.value);
+        }
+
         if (prevState.value !== this.state.value) {
             this.props.onChange && this.props.onChange.call(this, this.state.value);
         }
@@ -372,6 +384,27 @@ export default class Select extends React.Component {
         });
     }
 
+    setValue = value => {
+        const state = {
+            selectedOption: null,
+            selectedOptionIdx: -1,
+            focusedOption: null,
+            focusedOptionIdx: -1,
+        };
+
+        for (let i = 0; i < this.props.options.length; i++) {
+            if (this.props.options[i].value === value) {
+                state.selectedOption = this.props.options[i];
+                state.selectedOptionIdx = i;
+                state.focusedOption = this.props.options[i];
+                state.focusedOptionIdx = i;
+                break;
+            }
+        }
+
+        this.setState(state);
+    };
+
     selectValue(direction = "first") {
         const {selectedOptionIdx} = this.state;
         const {options} = this.props;
@@ -471,15 +504,18 @@ export default class Select extends React.Component {
 
     handleFocus = () => {
         document.body.addEventListener("keydown", this.handleDocumentKeyDown);
+        this.blurTimeout && clearTimeout(this.blurTimeout);
     };
 
     handleBlur = () => {
         document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
-        this.props.closeMenuOnBlur &&
-            this.state.opened &&
-            this.setState({
-                opened: false,
-            });
+        if (this.props.closeMenuOnBlur && this.state.opened) {
+            this.blurTimeout = setTimeout(() => {
+                this.setState({
+                    opened: false,
+                });
+            }, 15);
+        }
     };
 
     handleScrollbarOnScroll = scrollValues => {
@@ -493,6 +529,8 @@ export default class Select extends React.Component {
     render() {
         const {
                 options,
+                value,
+                opened: propsOpened,
 
                 removeMenuOnHide,
                 noDefaultStyles,
