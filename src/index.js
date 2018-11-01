@@ -613,6 +613,7 @@ export default class Select extends React.Component {
                         onHide={this.handleDropdownClose}>
                         <Scrollbar
                             noScrollX
+                            {...scrollbarProps}
                             style={{
                                 maxHeight: maxMenuHeight,
                                 maxWidth: maxMenuWidth,
