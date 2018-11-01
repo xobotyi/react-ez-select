@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import {Dropdown, DropdownContent, DropdownTrigger} from "react-ez-dropdown";
+import Scrollbar from "react-scrollbars-custom";
 import SingleOption from "./SingleOption";
 
 const defaultStyle = {
@@ -86,8 +87,9 @@ export default class Select extends React.Component {
         placeholderMediator: PropTypes.func,
         arrowContent: PropTypes.any,
 
-        removeDropdownOnHide: PropTypes.bool,
+        removeMenuOnHide: PropTypes.bool,
         closeMenuOnSelect: PropTypes.bool,
+        closeMenuOnBlur: PropTypes.bool,
         noDefaultStyles: PropTypes.bool,
         noArrow: PropTypes.bool,
 
@@ -109,9 +111,11 @@ export default class Select extends React.Component {
         arrowStyle: PropTypes.object,
         arrowOpenedStyle: PropTypes.object,
 
-        dropdownClassName: PropTypes.string,
-        dropdownStyle: PropTypes.object,
-        dropdownOpenedStyle: PropTypes.object,
+        menuClassName: PropTypes.string,
+        menuStyle: PropTypes.object,
+        menuOpenedStyle: PropTypes.object,
+        maxMenuHeight: PropTypes.number,
+        maxMenuWidth: PropTypes.number,
 
         optionStyle: PropTypes.object,
         optionStyleDisabled: PropTypes.object,
@@ -122,13 +126,19 @@ export default class Select extends React.Component {
         onInput: PropTypes.func,
         onOpen: PropTypes.func,
         onClose: PropTypes.func,
+
+        scrollbarProps: PropTypes.object,
     };
 
     static defaultProps = {
         closeMenuOnSelect: true,
-        removeDropdownOnHide: false,
+        closeMenuOnBlur: true,
+        removeMenuOnHide: false,
         noDefaultStyles: false,
         noArrow: false,
+
+        maxMenuHeight: 300,
+        maxMenuWidth: null,
 
         tagName: "div",
         tabIndex: "0",
@@ -239,6 +249,13 @@ export default class Select extends React.Component {
         if (prevState.value !== this.state.value) {
             this.props.onChange && this.props.onChange.call(this, this.state.value);
         }
+
+        this.state.opened &&
+            this.scrollbar &&
+            this.handleScrollbarOnScroll({
+                scrollHeight: this.scrollbar.scrollHeight,
+                scrollWidth: this.scrollbar.scrollWidth,
+            });
 
         if (this.props.options !== prevProps.options) {
             this.actualizeSelectedAndFocusedOptions();
@@ -439,6 +456,8 @@ export default class Select extends React.Component {
         this.setState({opened: true});
 
         document.body.addEventListener("keydown", this.handleDocumentKeyDown);
+
+        this.scrollbar.holder.style.height = this.scrollbar.scrollHeight + "px";
     };
 
     handleDropdownClose = () => {
@@ -456,19 +475,29 @@ export default class Select extends React.Component {
 
     handleBlur = () => {
         document.body.removeEventListener("keydown", this.handleDocumentKeyDown);
-        this.state.opened &&
+        this.props.closeMenuOnBlur &&
+            this.state.opened &&
             this.setState({
                 opened: false,
             });
+    };
+
+    handleScrollbarOnScroll = scrollValues => {
+        this.props.scrollbarProps &&
+            this.props.scrollbarProps.onScroll &&
+            this.props.scrollbarProps.onScroll(scrollValues);
+
+        this.scrollbar.holder.style.height = this.scrollbar.scrollHeight + "px";
     };
 
     render() {
         const {
                 options,
 
-                removeDropdownOnHide,
+                removeMenuOnHide,
                 noDefaultStyles,
                 closeMenuOnSelect,
+                closeMenuOnBlur,
                 noArrow,
 
                 tagName,
@@ -489,9 +518,11 @@ export default class Select extends React.Component {
                 arrowStyle,
                 arrowOpenedStyle,
 
-                dropdownClassName,
-                dropdownStyle,
-                dropdownOpenedStyle,
+                menuClassName,
+                menuStyle,
+                menuOpenedStyle,
+                maxMenuHeight,
+                maxMenuWidth,
 
                 placeholder,
                 placeholderMediator,
@@ -501,6 +532,8 @@ export default class Select extends React.Component {
                 onClose,
                 onChange,
 
+                scrollbarProps,
+
                 ...props
             } = this.props,
             {opened, selectedOption} = this.state;
@@ -509,13 +542,13 @@ export default class Select extends React.Component {
             controlsClassNames = "EzSelect-controls" + (controlsClassName ? " " + controlsClassName : ""),
             placeholderClassNames = "EzSelect-placeholder" + (placeholderClassName ? " " + placeholderClassName : ""),
             arrowClassNames = "EzSelect-arrow" + (arrowClassName ? " " + arrowClassName : ""),
-            dropdownClassNames = "EzSelect-dropdown" + (dropdownClassName ? " " + dropdownClassName : "");
+            dropdownClassNames = "EzSelect-dropdown" + (menuClassName ? " " + menuClassName : "");
 
         let wrapperStyles = {...style, ...(opened && openedStyle)},
             controlsStyles = {...controlsStyle, ...(opened && controlsOpenedStyle)},
             placeholderStyles = {...placeholderStyle, ...(opened && placeholderOpenedStyle)},
             arrowStyles = {...arrowStyle, ...(opened && arrowOpenedStyle)},
-            dropdownStyles = {...dropdownStyle, ...(opened && dropdownOpenedStyle)};
+            dropdownStyles = {...menuStyle, ...(opened && menuOpenedStyle)};
 
         if (!noDefaultStyles) {
             wrapperStyles = {
@@ -571,14 +604,29 @@ export default class Select extends React.Component {
                     </DropdownTrigger>
 
                     <DropdownContent
-                        removeOnHide={removeDropdownOnHide}
+                        removeOnHide={removeMenuOnHide}
                         className={dropdownClassNames}
                         style={dropdownStyles}
                         key="EzSelect-dropdown"
                         opened={opened}
                         onShow={this.handleDropdownOpen}
                         onHide={this.handleDropdownClose}>
-                        {this.renderOptions()}
+                        <Scrollbar
+                            noScrollX
+                            style={{
+                                maxHeight: maxMenuHeight,
+                                maxWidth: maxMenuWidth,
+                                ...(scrollbarProps && scrollbarProps.style),
+                            }}
+                            key="ScrollbarCustom"
+                            ref={ref => {
+                                this.scrollbar = ref;
+
+                                scrollbarProps && typeof scrollbarProps.ref === "function" && scrollbarProps.ref(ref);
+                            }}
+                            onScroll={this.handleScrollbarOnScroll}>
+                            {this.renderOptions()}
+                        </Scrollbar>
                     </DropdownContent>
                 </Dropdown>
             ),

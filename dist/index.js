@@ -11,6 +11,8 @@ var _react = _interopRequireDefault(require("react"));
 
 var _reactEzDropdown = require("react-ez-dropdown");
 
+var _reactScrollbarsCustom = _interopRequireDefault(require("react-scrollbars-custom"));
+
 var _SingleOption = _interopRequireDefault(require("./SingleOption"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -212,6 +214,7 @@ function (_React$Component) {
       });
 
       document.body.addEventListener("keydown", _this.handleDocumentKeyDown);
+      _this.scrollbar.holder.style.height = _this.scrollbar.scrollHeight + 'px';
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDropdownClose", function () {
@@ -231,9 +234,14 @@ function (_React$Component) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleBlur", function () {
       document.body.removeEventListener("keydown", _this.handleDocumentKeyDown);
-      _this.state.opened && _this.setState({
+      _this.props.closeMenuOnBlur && _this.state.opened && _this.setState({
         opened: false
       });
+    });
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleScrollbarOnScroll", function (scrollValues) {
+      _this.props.scrollbarProps && _this.props.scrollbarProps.onScroll && _this.props.scrollbarProps.onScroll(scrollValues);
+      _this.scrollbar.holder.style.height = _this.scrollbar.scrollHeight + 'px';
     });
 
     var preselected = _this.getPreselectedOption();
@@ -320,6 +328,11 @@ function (_React$Component) {
       if (prevState.value !== this.state.value) {
         this.props.onChange && this.props.onChange.call(this, this.state.value);
       }
+
+      this.state.opened && this.scrollbar && this.handleScrollbarOnScroll({
+        scrollHeight: this.scrollbar.scrollHeight,
+        scrollWidth: this.scrollbar.scrollWidth
+      });
 
       if (this.props.options !== prevProps.options) {
         this.actualizeSelectedAndFocusedOptions();
@@ -438,9 +451,10 @@ function (_React$Component) {
 
       var _this$props = this.props,
           options = _this$props.options,
-          removeDropdownOnHide = _this$props.removeDropdownOnHide,
+          removeMenuOnHide = _this$props.removeMenuOnHide,
           noDefaultStyles = _this$props.noDefaultStyles,
           closeMenuOnSelect = _this$props.closeMenuOnSelect,
+          closeMenuOnBlur = _this$props.closeMenuOnBlur,
           noArrow = _this$props.noArrow,
           tagName = _this$props.tagName,
           className = _this$props.className,
@@ -456,16 +470,19 @@ function (_React$Component) {
           arrowClassName = _this$props.arrowClassName,
           arrowStyle = _this$props.arrowStyle,
           arrowOpenedStyle = _this$props.arrowOpenedStyle,
-          dropdownClassName = _this$props.dropdownClassName,
-          dropdownStyle = _this$props.dropdownStyle,
-          dropdownOpenedStyle = _this$props.dropdownOpenedStyle,
+          menuClassName = _this$props.menuClassName,
+          menuStyle = _this$props.menuStyle,
+          menuOpenedStyle = _this$props.menuOpenedStyle,
+          maxMenuHeight = _this$props.maxMenuHeight,
+          maxMenuWidth = _this$props.maxMenuWidth,
           placeholder = _this$props.placeholder,
           placeholderMediator = _this$props.placeholderMediator,
           arrowContent = _this$props.arrowContent,
           onOpen = _this$props.onOpen,
           onClose = _this$props.onClose,
           onChange = _this$props.onChange,
-          props = _objectWithoutProperties(_this$props, ["options", "removeDropdownOnHide", "noDefaultStyles", "closeMenuOnSelect", "noArrow", "tagName", "className", "style", "openedStyle", "tabIndex", "controlsClassName", "controlsStyle", "controlsOpenedStyle", "placeholderClassName", "placeholderStyle", "placeholderOpenedStyle", "arrowClassName", "arrowStyle", "arrowOpenedStyle", "dropdownClassName", "dropdownStyle", "dropdownOpenedStyle", "placeholder", "placeholderMediator", "arrowContent", "onOpen", "onClose", "onChange"]),
+          scrollbarProps = _this$props.scrollbarProps,
+          props = _objectWithoutProperties(_this$props, ["options", "removeMenuOnHide", "noDefaultStyles", "closeMenuOnSelect", "closeMenuOnBlur", "noArrow", "tagName", "className", "style", "openedStyle", "tabIndex", "controlsClassName", "controlsStyle", "controlsOpenedStyle", "placeholderClassName", "placeholderStyle", "placeholderOpenedStyle", "arrowClassName", "arrowStyle", "arrowOpenedStyle", "menuClassName", "menuStyle", "menuOpenedStyle", "maxMenuHeight", "maxMenuWidth", "placeholder", "placeholderMediator", "arrowContent", "onOpen", "onClose", "onChange", "scrollbarProps"]),
           _this$state = this.state,
           opened = _this$state.opened,
           selectedOption = _this$state.selectedOption;
@@ -474,13 +491,13 @@ function (_React$Component) {
           controlsClassNames = "EzSelect-controls" + (controlsClassName ? " " + controlsClassName : ""),
           placeholderClassNames = "EzSelect-placeholder" + (placeholderClassName ? " " + placeholderClassName : ""),
           arrowClassNames = "EzSelect-arrow" + (arrowClassName ? " " + arrowClassName : ""),
-          dropdownClassNames = "EzSelect-dropdown" + (dropdownClassName ? " " + dropdownClassName : "");
+          dropdownClassNames = "EzSelect-dropdown" + (menuClassName ? " " + menuClassName : "");
 
       var wrapperStyles = _objectSpread({}, style, opened && openedStyle),
           controlsStyles = _objectSpread({}, controlsStyle, opened && controlsOpenedStyle),
           placeholderStyles = _objectSpread({}, placeholderStyle, opened && placeholderOpenedStyle),
           arrowStyles = _objectSpread({}, arrowStyle, opened && arrowOpenedStyle),
-          dropdownStyles = _objectSpread({}, dropdownStyle, opened && dropdownOpenedStyle);
+          dropdownStyles = _objectSpread({}, menuStyle, opened && menuOpenedStyle);
 
       if (!noDefaultStyles) {
         wrapperStyles = _objectSpread({}, defaultStyle.wrapper.regular, opened && defaultStyle.wrapper.opened, wrapperStyles);
@@ -513,14 +530,26 @@ function (_React$Component) {
           style: arrowStyles,
           key: "EzSelect-arrow"
         }, arrowContent)), _react.default.createElement(_reactEzDropdown.DropdownContent, {
-          removeOnHide: removeDropdownOnHide,
+          removeOnHide: removeMenuOnHide,
           className: dropdownClassNames,
           style: dropdownStyles,
           key: "EzSelect-dropdown",
           opened: opened,
           onShow: this.handleDropdownOpen,
           onHide: this.handleDropdownClose
-        }, this.renderOptions()))
+        }, _react.default.createElement(_reactScrollbarsCustom.default, {
+          noScrollX: true,
+          style: _objectSpread({
+            maxHeight: maxMenuHeight,
+            maxWidth: maxMenuWidth
+          }, scrollbarProps && scrollbarProps.style),
+          key: "ScrollbarCustom",
+          ref: function ref(_ref2) {
+            _this3.scrollbar = _ref2;
+            scrollbarProps && typeof scrollbarProps.ref === 'function' && scrollbarProps.ref(_ref2);
+          },
+          onScroll: this.handleScrollbarOnScroll
+        }, this.renderOptions())))
       }));
     }
   }]);
@@ -541,8 +570,9 @@ _defineProperty(Select, "propTypes", {
   placeholder: _propTypes.default.any,
   placeholderMediator: _propTypes.default.func,
   arrowContent: _propTypes.default.any,
-  removeDropdownOnHide: _propTypes.default.bool,
+  removeMenuOnHide: _propTypes.default.bool,
   closeMenuOnSelect: _propTypes.default.bool,
+  closeMenuOnBlur: _propTypes.default.bool,
   noDefaultStyles: _propTypes.default.bool,
   noArrow: _propTypes.default.bool,
   tagName: _propTypes.default.string,
@@ -559,9 +589,11 @@ _defineProperty(Select, "propTypes", {
   arrowClassName: _propTypes.default.string,
   arrowStyle: _propTypes.default.object,
   arrowOpenedStyle: _propTypes.default.object,
-  dropdownClassName: _propTypes.default.string,
-  dropdownStyle: _propTypes.default.object,
-  dropdownOpenedStyle: _propTypes.default.object,
+  menuClassName: _propTypes.default.string,
+  menuStyle: _propTypes.default.object,
+  menuOpenedStyle: _propTypes.default.object,
+  maxMenuHeight: _propTypes.default.number,
+  maxMenuWidth: _propTypes.default.number,
   optionStyle: _propTypes.default.object,
   optionStyleDisabled: _propTypes.default.object,
   optionStyleFocused: _propTypes.default.object,
@@ -569,14 +601,18 @@ _defineProperty(Select, "propTypes", {
   onChange: _propTypes.default.func,
   onInput: _propTypes.default.func,
   onOpen: _propTypes.default.func,
-  onClose: _propTypes.default.func
+  onClose: _propTypes.default.func,
+  scrollbarProps: _propTypes.default.object
 });
 
 _defineProperty(Select, "defaultProps", {
   closeMenuOnSelect: true,
-  removeDropdownOnHide: false,
+  closeMenuOnBlur: true,
+  removeMenuOnHide: false,
   noDefaultStyles: false,
   noArrow: false,
+  maxMenuHeight: 300,
+  maxMenuWidth: null,
   tagName: "div",
   tabIndex: "0",
   arrowContent: _react.default.createElement("svg", {
