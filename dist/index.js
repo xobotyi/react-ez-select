@@ -214,7 +214,7 @@ function (_React$Component) {
       });
 
       document.body.addEventListener("keydown", _this.handleDocumentKeyDown);
-      _this.scrollbar.holder.style.height = _this.scrollbar.scrollHeight + 'px';
+      _this.scrollbar.holder.style.height = _this.scrollbar.scrollHeight + "px";
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDropdownClose", function () {
@@ -241,7 +241,7 @@ function (_React$Component) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleScrollbarOnScroll", function (scrollValues) {
       _this.props.scrollbarProps && _this.props.scrollbarProps.onScroll && _this.props.scrollbarProps.onScroll(scrollValues);
-      _this.scrollbar.holder.style.height = _this.scrollbar.scrollHeight + 'px';
+      _this.scrollbar.holder.style.height = _this.scrollbar.scrollHeight + "px";
     });
 
     var preselected = _this.getPreselectedOption();
@@ -546,7 +546,7 @@ function (_React$Component) {
           key: "ScrollbarCustom",
           ref: function ref(_ref2) {
             _this3.scrollbar = _ref2;
-            scrollbarProps && typeof scrollbarProps.ref === 'function' && scrollbarProps.ref(_ref2);
+            scrollbarProps && typeof scrollbarProps.ref === "function" && scrollbarProps.ref(_ref2);
           },
           onScroll: this.handleScrollbarOnScroll
         }, this.renderOptions())))
