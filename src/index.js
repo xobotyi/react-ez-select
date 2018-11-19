@@ -52,6 +52,7 @@ const defaultStyle = {
     },
     option: {
         regular: {
+            minWidth: "max-content",
             cursor: "pointer",
             padding: ".25em 1em",
             whiteSpace: "nowrap",
@@ -261,13 +262,6 @@ export default class Select extends React.Component {
         if (prevState.value !== this.state.value) {
             this.props.onChange && this.props.onChange.call(this, this.state.value);
         }
-
-        this.state.opened &&
-            this.scrollbar &&
-            this.handleScrollbarOnScroll({
-                scrollHeight: this.scrollbar.scrollHeight,
-                scrollWidth: this.scrollbar.scrollWidth,
-            });
 
         if (this.props.options !== prevProps.options) {
             this.actualizeSelectedAndFocusedOptions();
@@ -489,8 +483,6 @@ export default class Select extends React.Component {
         this.setState({opened: true});
 
         document.body.addEventListener("keydown", this.handleDocumentKeyDown);
-
-        this.scrollbar.holder.style.height = this.scrollbar.scrollHeight + "px";
     };
 
     handleDropdownClose = () => {
@@ -522,8 +514,6 @@ export default class Select extends React.Component {
         this.props.scrollbarProps &&
             this.props.scrollbarProps.onScroll &&
             this.props.scrollbarProps.onScroll(scrollValues);
-
-        this.scrollbar.holder.style.height = this.scrollbar.scrollHeight + "px";
     };
 
     render() {
@@ -655,15 +645,11 @@ export default class Select extends React.Component {
                             style={{
                                 maxHeight: maxMenuHeight,
                                 maxWidth: maxMenuWidth,
+                                minWidth: "100%",
                                 ...(scrollbarProps && scrollbarProps.style),
                             }}
                             key="ScrollbarCustom"
-                            ref={ref => {
-                                this.scrollbar = ref;
-
-                                scrollbarProps && typeof scrollbarProps.ref === "function" && scrollbarProps.ref(ref);
-                            }}
-                            onScroll={this.handleScrollbarOnScroll}>
+                            translateContentSizesToHolder>
                             {this.renderOptions()}
                         </Scrollbar>
                     </DropdownContent>

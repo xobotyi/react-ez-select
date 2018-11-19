@@ -12,7 +12,7 @@ const packageName = "react-ez-select";
 export default class App extends React.Component {
     render() {
         return (
-            <Scrollbar defaultStyles={false} contentClassName="AppContent">
+            <Scrollbar noDefaultStyles contentProps={{className: "AppContent"}}>
                 <Head packageName={packageName} packageLink={packageLink} />
                 <Body packageName={packageName} packageLink={packageLink} />
                 <Footer

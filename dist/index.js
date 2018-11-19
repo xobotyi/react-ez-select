@@ -93,6 +93,7 @@ var defaultStyle = {
   },
   option: {
     regular: {
+      minWidth: "max-content",
       cursor: "pointer",
       padding: ".25em 1em",
       whiteSpace: "nowrap",
@@ -237,7 +238,6 @@ function (_React$Component) {
       });
 
       document.body.addEventListener("keydown", _this.handleDocumentKeyDown);
-      _this.scrollbar.holder.style.height = _this.scrollbar.scrollHeight + "px";
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleDropdownClose", function () {
@@ -270,7 +270,6 @@ function (_React$Component) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "handleScrollbarOnScroll", function (scrollValues) {
       _this.props.scrollbarProps && _this.props.scrollbarProps.onScroll && _this.props.scrollbarProps.onScroll(scrollValues);
-      _this.scrollbar.holder.style.height = _this.scrollbar.scrollHeight + "px";
     });
 
     var preselected = _this.getPreselectedOption();
@@ -365,11 +364,6 @@ function (_React$Component) {
       if (prevState.value !== this.state.value) {
         this.props.onChange && this.props.onChange.call(this, this.state.value);
       }
-
-      this.state.opened && this.scrollbar && this.handleScrollbarOnScroll({
-        scrollHeight: this.scrollbar.scrollHeight,
-        scrollWidth: this.scrollbar.scrollWidth
-      });
 
       if (this.props.options !== prevProps.options) {
         this.actualizeSelectedAndFocusedOptions();
@@ -581,14 +575,11 @@ function (_React$Component) {
         }, scrollbarProps, {
           style: _objectSpread({
             maxHeight: maxMenuHeight,
-            maxWidth: maxMenuWidth
+            maxWidth: maxMenuWidth,
+            minWidth: "100%"
           }, scrollbarProps && scrollbarProps.style),
           key: "ScrollbarCustom",
-          ref: function ref(_ref2) {
-            _this3.scrollbar = _ref2;
-            scrollbarProps && typeof scrollbarProps.ref === "function" && scrollbarProps.ref(_ref2);
-          },
-          onScroll: this.handleScrollbarOnScroll
+          translateContentSizesToHolder: true
         }), this.renderOptions())))
       }));
     }

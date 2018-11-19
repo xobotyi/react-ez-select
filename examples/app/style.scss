@@ -37,13 +37,13 @@ body {
     width:     100%;
     height:    100%;
 
-    & > .ScrollbarsCustom-holder {
+    & > .ScrollbarsCustom  {
         position: relative;
         display:  flex;
         width:    100%;
         height:   100%;
 
-        & > .ScrollbarsCustom-wrapper {
+        & > .wrapper {
             width:  100%;
             height: 100%;
 
@@ -53,18 +53,18 @@ body {
             }
         }
 
-        & > .ScrollbarsCustom-track {
+        & > .track {
             display:       block;
             background:    #D0D3D7;
             border-radius: 1rem;
             overflow:      hidden;
 
-            &.ScrollbarsCustom-trackVertical {
+            &.trackY {
                 height: calc(100% - 2rem);
                 width:  1rem;
                 margin: 1rem .5rem;
             }
-            &.ScrollbarsCustom-trackHorizontal {
+            &.trackX {
                 position: absolute;
                 bottom:   .5rem;
                 left:     1.5rem;
@@ -72,16 +72,16 @@ body {
                 width:    calc(100% - 3rem);
             }
 
-            & > .ScrollbarsCustom-thumb {
+            & > .thumb {
                 background:    #B6BDC9;
                 cursor:        pointer;
                 border-radius: 1rem;
                 box-shadow:    0 0 0 .5rem #E8EAED;
 
-                &.ScrollbarsCustom-thumbVertical {
+                &.thumbY {
                     width: 100%;
                 }
-                &.ScrollbarsCustom-thumbHorizontal {
+                &.thumbX {
                     height:     100%;
                     box-shadow: none;
                 }
@@ -289,28 +289,6 @@ body {
                 height:     1px;
                 background: rgba(0, 0, 0, .05);
             }
-
-            & > .ScrollbarsCustom-holder {
-                height: 100%;
-                width:  100%;
-            }
-
-            .ScrollbarsCustom-content {
-                font-size: 1.5rem;
-
-                @media (min-width: 961px) {
-                    font-size: 1.75rem;
-                }
-
-                p {
-                    margin:     1rem 1.5rem 0 0;
-                    box-sizing: border-box;
-
-                    &:first-child {
-                        margin-top: 0;
-                    }
-                }
-            }
         }
     }
 }
@@ -349,148 +327,5 @@ body {
     }
     .authorLink, .authorLink:active {
         color: #B6B6B7;
-    }
-}
-
-#CustomStyleExampleBlock {
-    & > .content {
-        & > .ScrollbarsCustom-holder {
-            display:               grid;
-            width:                 100%;
-            height:                100%;
-            grid-template-columns: 1fr min-content;
-            grid-template-rows:    1fr min-content;
-
-            & > .ScrollbarsCustom-wrapper {
-                grid-area: 1 / 1 / auto / auto;
-
-                & > .ScrollbarsCustom-content {
-                    p {
-                        display:  inline-block;
-                        position: relative;
-                        width:    150%;
-                    }
-                }
-            }
-
-            & > .ScrollbarsCustom-trackVertical {
-                width:      8px;
-                background: rgba(0, 0, 0, 0.1);
-                grid-area:  1 / 2 / auto / auto;
-                overflow:   hidden;
-
-                & > .ScrollbarsCustom-thumb {
-                    cursor:     pointer;
-                    width:      100%;
-                    background: rgba(0, 0, 0, 0.35);
-                }
-            }
-
-            & > .ScrollbarsCustom-trackHorizontal {
-                height:     8px;
-                background: rgba(0, 0, 0, 0.1);
-                grid-area:  2 / 1 / auto / auto;
-
-                & > .ScrollbarsCustom-thumb {
-                    cursor:     pointer;
-                    height:     100%;
-                    background: rgba(0, 0, 0, 0.35);
-                }
-            }
-        }
-    }
-}
-
-#SandboxBlock {
-    & > .description {
-        .button {
-            display:          inline-flex;
-            align-items:      center;
-            margin:           .5rem;
-            cursor:           pointer;
-            background-color: #555555;
-            color:            rgba(255, 255, 255, .87);
-            padding:          .5rem 1rem;
-            font-size:        1.5rem;
-            line-height:      1em;
-            border-radius:    .25rem;
-            text-transform:   uppercase;
-            user-select:      none;
-
-            &:hover {
-                background: #333333;
-                color:      #FFFFFF;
-            }
-        }
-    }
-
-    & > .content {
-        margin: 2rem 0 0;
-        & > .ScrollbarsCustom-holder {
-            display:               grid;
-            width:                 100%;
-            height:                100%;
-            position:              relative;
-            grid-template-columns: 1fr min-content;
-            grid-template-rows:    1fr min-content;
-
-            & > .ScrollbarsCustom-wrapper {
-                grid-area: 1 / 1 / auto / auto;
-
-                & > .ScrollbarsCustom-content {
-                    p {
-                        display:  inline-block;
-                        position: relative;
-                        width:    150%;
-                    }
-                }
-            }
-
-            & > .ScrollbarsCustom-trackVertical {
-                position:   relative;
-                width:      8px;
-                background: rgba(0, 0, 0, 0.1);
-                grid-area:  1 / 2 / auto / auto;
-                overflow:   hidden;
-
-                & > .ScrollbarsCustom-thumb {
-                    cursor:     pointer;
-                    width:      100%;
-                    background: rgba(0, 0, 0, 0.35);
-                }
-            }
-
-            & > .ScrollbarsCustom-trackHorizontal {
-                position:   relative;
-                height:     8px;
-                background: rgba(0, 0, 0, 0.1);
-                grid-area:  2 / 1 / auto / auto;
-
-                & > .ScrollbarsCustom-thumb {
-                    cursor:     pointer;
-                    height:     100%;
-                    background: rgba(0, 0, 0, 0.35);
-                }
-            }
-        }
-    }
-}
-
-.mayhemScrollbarsHolder {
-    display:   flex;
-    flex-wrap: wrap;
-    width:     100%;
-    flex-grow: 1;
-
-    & > .ScrollbarsCustom-holder {
-        flex-grow:   0;
-        flex-shrink: 0;
-
-        p {
-            box-shadow: inset 25px 0 0 blue,
-                        inset -25px 0 0 red,
-                        inset 0 25px 0 #34FF6F,
-                        inset 0 -25px 0 #F600FF;
-        }
     }
 }
