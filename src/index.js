@@ -621,8 +621,8 @@ export default class Select extends React.Component {
                             {typeof selectedOption === "undefined"
                                 ? placeholder
                                 : !!placeholderMediator
-                                    ? placeholderMediator(selectedOption)
-                                    : selectedOption.label}
+                                ? placeholderMediator(selectedOption)
+                                : selectedOption.label}
                         </div>
                         {!noArrow && (
                             <div className={arrowClassNames} style={arrowStyles} key="EzSelect-arrow">
