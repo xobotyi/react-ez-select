@@ -45,12 +45,13 @@ export default class SelectOption extends React.Component<
 
   static propTypes = {
     label: PropTypes.any.isRequired,
-    option: PropTypes.object.isRequired,
+    option: PropTypes.any.isRequired,
 
     disabled: PropTypes.bool,
     focused: PropTypes.bool,
     selected: PropTypes.bool,
     hovered: PropTypes.bool,
+
     scrollIntoViewOnFocus: PropTypes.string,
     scrollIntoViewOnSelect: PropTypes.string,
 
@@ -64,8 +65,10 @@ export default class SelectOption extends React.Component<
     selectedStyle: PropTypes.object,
     hoveredStyle: PropTypes.object,
 
-    onFocus: PropTypes.func,
-    onBlur: PropTypes.func,
+    onDisabledChange: PropTypes.func,
+    onFocusedChange: PropTypes.func,
+    onSelectedChange: PropTypes.func,
+    onHoveredChange: PropTypes.func,
 
     elementRef: PropTypes.func
   };
@@ -174,20 +177,20 @@ export default class SelectOption extends React.Component<
   render(): React.ReactElement<any> {
     const {
       label,
-      value,
       option,
-
       disabled,
+
       focused,
       selected,
       hovered,
+
+      scrollIntoViewOnFocus,
+      scrollIntoViewOnSelect,
 
       disabledClassName,
       focusedClassName,
       selectedClassName,
       hoveredClassName,
-
-      scrollIntoViewOnFocus,
 
       disabledStyle,
       focusedStyle,
@@ -196,6 +199,7 @@ export default class SelectOption extends React.Component<
 
       onDisabledChange,
       onFocusedChange,
+
       onSelectedChange,
       onHoveredChange,
 

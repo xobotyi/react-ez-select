@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as PropTypes from "prop-types";
 import { Dropdown, DropdownContent, DropdownTrigger } from "react-ez-dropdown";
 import { Scrollbar, ScrollbarProps } from "react-scrollbars-custom";
 import SelectOption from "./SelectOption";
@@ -150,7 +151,58 @@ export type SelectState = {
 };
 
 export default class Select extends React.Component<SelectProps, SelectState> {
-  static propTypes = {};
+  static propTypes = {
+    options: PropTypes.arrayOf(
+      PropTypes.shape({
+        value: PropTypes.any.isRequired,
+        label: PropTypes.any.isRequired,
+        disabled: PropTypes.bool,
+        selected: PropTypes.bool
+      })
+    ).isRequired,
+
+    value: PropTypes.any,
+
+    placeholder: PropTypes.element,
+    placeholderMediator: PropTypes.func,
+
+    indicators: PropTypes.arrayOf(PropTypes.element),
+
+    onChange: PropTypes.func,
+    onInput: PropTypes.func,
+
+    onOpen: PropTypes.func,
+    onClose: PropTypes.func,
+
+    dropdownOpened: PropTypes.bool,
+    dropdownOpenedOnInit: PropTypes.bool,
+    dropdownRemoveOnHide: PropTypes.bool,
+    dropdownCloseOnEsc: PropTypes.bool,
+    dropdownCloseOnBlur: PropTypes.bool,
+    dropdownCloseOnSelect: PropTypes.bool,
+    dropdownOpenOnFocus: PropTypes.bool,
+    dropdownMaxHeight: PropTypes.bool,
+    dropdownMaxWidth: PropTypes.bool,
+
+    controlProps: PropTypes.object,
+    placeholderProps: PropTypes.object,
+    indicatorsProps: PropTypes.object,
+    dropdownProps: PropTypes.object,
+    optionProps: PropTypes.object,
+    dropdownScrollbarProps: PropTypes.object,
+
+    openedProps: PropTypes.object,
+    controlOpenedProps: PropTypes.object,
+    placeholderOpenedProps: PropTypes.object,
+    indicatorsOpenedProps: PropTypes.object,
+    dropdownOpenedProps: PropTypes.object,
+    optionOpenedProps: PropTypes.object,
+    dropdownScrollbarOpenedProps: PropTypes.object,
+
+    tabIndex: PropTypes.number,
+
+    noDefaultStyles: PropTypes.bool
+  };
 
   static defaultProps = {
     dropdownRemoveOnHide: true,
@@ -515,6 +567,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
   public render(): React.ReactElement<any> {
     const {
       options,
+
       value,
 
       placeholder,
@@ -536,11 +589,10 @@ export default class Select extends React.Component<SelectProps, SelectState> {
       dropdownMaxHeight,
       dropdownMaxWidth,
 
-      indicators,
-
       controlProps,
       placeholderProps,
       indicatorsProps,
+      indicators,
       dropdownProps,
       optionProps,
       dropdownScrollbarProps,
