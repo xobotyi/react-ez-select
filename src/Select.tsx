@@ -295,6 +295,17 @@ export default class Select extends React.Component<SelectProps, SelectState> {
         focusOptionSource: "select"
       });
     }
+
+    const currentValue = this.state.selectedOptionIdx
+      ? this.props.options[this.state.selectedOptionIdx].value
+      : undefined;
+    const prevValue = prevState.selectedOptionIdx
+      ? this.props.options[prevState.selectedOptionIdx].value
+      : undefined;
+
+    if (this.props.onChange && currentValue !== prevValue) {
+      this.props.onChange(currentValue);
+    }
   }
 
   public switchFocusedOption = (
@@ -412,6 +423,8 @@ export default class Select extends React.Component<SelectProps, SelectState> {
       selectedOptionIdx: idx || 0,
       selectOptionSource: source
     });
+    this.props.onInput &&
+      this.props.onInput(this.props.options[idx || 0].value);
 
     return this;
   };
