@@ -437,13 +437,25 @@ export default class Select extends React.Component<SelectProps, SelectState> {
           option={option}
           value={option.value}
           label={option.label}
-          style={defaultStyles.option.regular}
+          style={
+            this.props.noDefaultStyles
+              ? undefined
+              : defaultStyles.option.regular
+          }
           focused={idx === this.state.focusedOptionIdx}
           scrollIntoViewOnFocus={scrollIntoViewOnFocus}
           selected={idx === this.state.selectedOptionIdx}
           disabled={option.disabled || false}
-          focusedStyle={defaultStyles.option.focused}
-          selectedStyle={defaultStyles.option.selected}
+          focusedStyle={
+            this.props.noDefaultStyles
+              ? undefined
+              : defaultStyles.option.focused
+          }
+          selectedStyle={
+            this.props.noDefaultStyles
+              ? undefined
+              : defaultStyles.option.selected
+          }
           onClick={evt => {
             this.triggerElement && this.triggerElement.focus();
 
