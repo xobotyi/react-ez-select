@@ -187,6 +187,8 @@ export default class SelectOption extends React.Component<
       selectedClassName,
       hoveredClassName,
 
+      scrollIntoViewOnFocus,
+
       disabledStyle,
       focusedStyle,
       selectedStyle,
