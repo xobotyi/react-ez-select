@@ -549,7 +549,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     } = this.props;
 
     props.className = cnb("EzSelect", this.props.className);
-    props.style = defaultStyles.holder;
+    props.style = noDefaultStyles ? undefined : defaultStyles.holder;
 
     const holderFinalProps = mergeProps(
       props,
@@ -561,7 +561,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     const controlFinalProps = mergeProps(
       {
         className: "EzSelect-Control",
-        style: defaultStyles.control
+        style: noDefaultStyles ? undefined : defaultStyles.control
       },
       controlProps,
       this.state.opened && controlOpenedProps,
@@ -575,7 +575,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     const placeholderFinalProps = mergeProps(
       {
         className: "EzSelect-Placeholder",
-        style: defaultStyles.placeholder
+        style: noDefaultStyles ? undefined : defaultStyles.placeholder
       },
       placeholderProps,
       this.state.opened && placeholderOpenedProps,
@@ -586,7 +586,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     const dropdownFinalProps = mergeProps(
       {
         className: "EzSelect-Dropdown",
-        style: defaultStyles.dropdown
+        style: noDefaultStyles ? undefined : defaultStyles.dropdown
       },
       dropdownProps,
       this.state.opened && dropdownOpenedProps,
@@ -606,8 +606,12 @@ export default class Select extends React.Component<SelectProps, SelectState> {
           maxHeight: dropdownMaxHeight || undefined,
           maxWidth: dropdownMaxWidth || undefined
         },
-        wrapperProps: { style: defaultStyles.scrollbar.wrapper },
-        contentProps: { style: defaultStyles.scrollbar.content },
+        wrapperProps: {
+          style: noDefaultStyles ? undefined : defaultStyles.scrollbar.wrapper
+        },
+        contentProps: {
+          style: noDefaultStyles ? undefined : defaultStyles.scrollbar.content
+        },
         trackYProps: { style: { right: 2 } },
         trackXProps: { style: { bottom: 2 } }
       },
@@ -637,7 +641,9 @@ export default class Select extends React.Component<SelectProps, SelectState> {
                 {...mergeProps(
                   {
                     className: "EzSelect-Indicators",
-                    style: defaultStyles.indicators
+                    style: noDefaultStyles
+                      ? undefined
+                      : defaultStyles.indicators
                   },
                   indicatorsProps,
                   this.state.opened && indicatorsOpenedProps,
