@@ -102,7 +102,7 @@ export type SelectProps = React.HTMLProps<HTMLDivElement> & {
   options: OptionItem[];
   value?: any;
 
-  placeholder?: string;
+  placeholder?: React.ReactElement<any>;
   placeholderMediator?: (option: OptionItem) => any;
 
   onChange?: (val: any) => void;
@@ -165,10 +165,20 @@ export default class Select extends React.Component<SelectProps, SelectState> {
 
     value: PropTypes.any,
 
-    placeholder: PropTypes.element,
+    placeholder: PropTypes.oneOfType([
+      PropTypes.element,
+      PropTypes.number,
+      PropTypes.string
+    ]),
     placeholderMediator: PropTypes.func,
 
-    indicators: PropTypes.arrayOf(PropTypes.element),
+    indicators: PropTypes.arrayOf(
+      PropTypes.oneOfType([
+        PropTypes.element,
+        PropTypes.number,
+        PropTypes.string
+      ])
+    ),
 
     onChange: PropTypes.func,
     onInput: PropTypes.func,
