@@ -21,14 +21,28 @@ const options = [
   { value: 16, label: "Option 16" }
 ];
 
-class App extends React.Component {
+class App extends React.Component<{}, { value: number }> {
+  constructor(props) {
+    super(props);
+
+    this.state = { value: 5 };
+
+    setTimeout(() => {
+      this.setState({ value: 14 });
+
+      setTimeout(() => {
+        this.setState({ value: 7 });
+      }, 1000);
+    }, 1000);
+  }
+
   public render(): React.ReactNode {
     return (
       <Select
         options={options}
-        openedOnInit
-        openDropdownOnFocus
+        dropdownOpenedOnInit
         dropdownMaxHeight={150}
+        value={this.state.value}
       />
     );
   }

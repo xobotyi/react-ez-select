@@ -9,6 +9,8 @@ type SelectOptionProps = React.HTMLProps<HTMLDivElement> & {
   focused?: boolean;
   selected?: boolean;
   hovered?: boolean;
+  scrollIntoViewOnFocus?: ScrollLogicalPosition;
+  scrollIntoViewOnSelect?: ScrollLogicalPosition;
 
   disabledClassName?: string;
   focusedClassName?: string;
@@ -49,6 +51,8 @@ export default class SelectOption extends React.Component<
     focused: PropTypes.bool,
     selected: PropTypes.bool,
     hovered: PropTypes.bool,
+    scrollIntoViewOnFocus: PropTypes.string,
+    scrollIntoViewOnSelect: PropTypes.string,
 
     disabledClassName: PropTypes.string,
     focusedClassName: PropTypes.string,
@@ -118,17 +122,37 @@ export default class SelectOption extends React.Component<
       this.props.onDisabledChange &&
         this.props.onDisabledChange(this.props.option, this.state.disabled);
     }
-    if (prevState.selected !== this.state.selected) {
-      this.props.onFocusedChange &&
-        this.props.onFocusedChange(this.props.option, this.state.selected);
-    }
-    if (prevState.focused !== this.state.focused) {
-      this.props.onSelectedChange &&
-        this.props.onSelectedChange(this.props.option, this.state.focused);
-    }
     if (prevState.hovered !== this.state.hovered) {
       this.props.onHoveredChange &&
         this.props.onHoveredChange(this.props.option, this.state.hovered);
+    }
+    if (prevState.focused !== this.state.focused) {
+      this.props.onFocusedChange &&
+        this.props.onFocusedChange(this.props.option, this.state.focused);
+
+      if (this.state.focused && this.props.scrollIntoViewOnFocus) {
+        setTimeout(() => {
+          this.element &&
+            this.element.scrollIntoView({
+              behavior: "auto",
+              block: this.props.scrollIntoViewOnFocus
+            });
+        }, 50);
+      }
+    }
+    if (prevState.selected !== this.state.selected) {
+      this.props.onSelectedChange &&
+        this.props.onSelectedChange(this.props.option, this.state.selected);
+
+      if (this.state.selected && this.props.scrollIntoViewOnSelect) {
+        setTimeout(() => {
+          this.element &&
+            this.element.scrollIntoView({
+              behavior: "auto",
+              block: this.props.scrollIntoViewOnSelect
+            });
+        }, 50);
+      }
     }
   }
 
