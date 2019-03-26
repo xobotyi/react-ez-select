@@ -583,18 +583,6 @@ export default class Select extends React.Component<SelectProps, SelectState> {
         ref: this.placeholderRef
       }
     );
-    const indicatorsFinalProps = mergeProps(
-      {
-        className: "EzSelect-Indicators",
-        style: defaultStyles.indicators
-      },
-      indicatorsProps,
-      this.state.opened && indicatorsOpenedProps,
-      {
-        ref: this.indicatorsRef,
-        children: indicators
-      }
-    );
     const dropdownFinalProps = mergeProps(
       {
         className: "EzSelect-Dropdown",
@@ -644,7 +632,22 @@ export default class Select extends React.Component<SelectProps, SelectState> {
         <Dropdown>
           <DropdownTrigger {...controlFinalProps}>
             <div {...placeholderFinalProps}>{placeholderContent}</div>
-            <div {...indicatorsFinalProps} />
+            {!!indicators && !!indicators.length && (
+              <div
+                {...mergeProps(
+                  {
+                    className: "EzSelect-Indicators",
+                    style: defaultStyles.indicators
+                  },
+                  indicatorsProps,
+                  this.state.opened && indicatorsOpenedProps,
+                  {
+                    ref: this.indicatorsRef,
+                    children: indicators
+                  }
+                )}
+              />
+            )}
           </DropdownTrigger>
 
           <DropdownContent {...dropdownFinalProps}>
