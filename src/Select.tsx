@@ -121,6 +121,8 @@ export type SelectProps = React.HTMLProps<HTMLDivElement> & {
   dropdownMaxHeight?: number;
   dropdownMaxWidth?: number;
 
+  openedClassName?: string;
+
   controlProps?: React.HTMLProps<HTMLDivElement>;
   placeholderProps?: React.HTMLProps<HTMLDivElement>;
   indicatorsProps?: React.HTMLProps<HTMLDivElement>;
@@ -174,6 +176,8 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     onOpen: PropTypes.func,
     onClose: PropTypes.func,
 
+    openedClassName: PropTypes.string,
+
     dropdownOpened: PropTypes.bool,
     dropdownOpenedOnInit: PropTypes.bool,
     dropdownRemoveOnHide: PropTypes.bool,
@@ -210,8 +214,11 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     dropdownCloseOnBlur: true,
     dropdownCloseOnSelect: true,
 
+    openedClassName: "opened",
+
     indicators: [
       <div
+        key="arrow"
         style={{
           width: 10,
           height: 10,
@@ -579,6 +586,8 @@ export default class Select extends React.Component<SelectProps, SelectState> {
       onOpen,
       onClose,
 
+      openedClassName,
+
       dropdownOpened,
       dropdownOpenedOnInit,
       dropdownRemoveOnHide,
@@ -612,7 +621,11 @@ export default class Select extends React.Component<SelectProps, SelectState> {
       ...props
     } = this.props;
 
-    props.className = cnb("EzSelect", this.props.className);
+    props.className = cnb(
+      "EzSelect",
+      this.props.className,
+      this.state.opened && openedClassName
+    );
     props.style = noDefaultStyles ? undefined : defaultStyles.holder;
 
     const holderFinalProps = mergeProps(
