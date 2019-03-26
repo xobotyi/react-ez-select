@@ -24,7 +24,7 @@
   "types": "dist/types/index.d.ts",
   "dependencies": {
     "cnbuilder": "^1.0.0",
-    "react-ez-dropdown": "^0.2.0",
+    "react-ez-dropdown": "^0.2.3",
     "react-scrollbars-custom": "^4.0.0-alpha.8"
   },
   "peerDependencies": {
