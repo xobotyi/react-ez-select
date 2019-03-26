@@ -10,7 +10,7 @@
 
     "jsx": "react",
     "module": "commonjs",
-    "target": "es6",
+    "target": "esnext",
     "lib": ["esnext", "dom"],
 
     "outDir": "dist/esm"

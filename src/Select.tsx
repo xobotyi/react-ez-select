@@ -87,7 +87,7 @@ enum SWITCH_DIRECTION {
   LAST = "last"
 }
 
-type OptionItem = {
+export type OptionItem = {
   value: any;
   label: any;
 
@@ -97,7 +97,7 @@ type OptionItem = {
   [key: string]: any;
 };
 
-type SelectProps = React.HTMLProps<HTMLDivElement> & {
+export type SelectProps = React.HTMLProps<HTMLDivElement> & {
   options: OptionItem[];
   value?: any;
 
@@ -140,7 +140,7 @@ type SelectProps = React.HTMLProps<HTMLDivElement> & {
 
   noDefaultStyles?: boolean;
 };
-type SelectState = {
+export type SelectState = {
   opened: boolean;
 
   selectOptionSource: string | null;
