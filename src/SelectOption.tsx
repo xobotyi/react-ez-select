@@ -37,10 +37,7 @@ type SelectOptionState = {
   hovered: boolean;
 };
 
-export default class SelectOption extends React.Component<
-  SelectOptionProps,
-  SelectOptionState
-> {
+export default class SelectOption extends React.Component<SelectOptionProps, SelectOptionState> {
   public element: HTMLDivElement | null;
 
   static propTypes = {
@@ -71,7 +68,7 @@ export default class SelectOption extends React.Component<
     onHoveredChange: PropTypes.func,
 
     elementRef: PropTypes.func
-  };
+  } as PropTypes.InferProps<SelectOptionProps>;
 
   static defaultProps = {
     disabledClassName: "disabled",
@@ -96,42 +93,27 @@ export default class SelectOption extends React.Component<
     prevState: Readonly<SelectOptionState>,
     snapshot?: any
   ): void {
-    if (
-      this.props.disabled !== this.state.disabled &&
-      prevProps.disabled !== this.props.disabled
-    ) {
+    if (this.props.disabled !== this.state.disabled && prevProps.disabled !== this.props.disabled) {
       this.setState({ disabled: !!this.props.disabled });
     }
-    if (
-      this.props.selected !== this.state.selected &&
-      prevProps.selected !== this.props.selected
-    ) {
+    if (this.props.selected !== this.state.selected && prevProps.selected !== this.props.selected) {
       this.setState({ selected: !!this.props.selected });
     }
-    if (
-      this.props.focused !== this.state.focused &&
-      prevProps.focused !== this.props.focused
-    ) {
+    if (this.props.focused !== this.state.focused && prevProps.focused !== this.props.focused) {
       this.setState({ focused: !!this.props.focused });
     }
-    if (
-      this.props.hovered !== this.state.hovered &&
-      prevProps.hovered !== this.props.hovered
-    ) {
+    if (this.props.hovered !== this.state.hovered && prevProps.hovered !== this.props.hovered) {
       this.setState({ hovered: !!this.props.hovered });
     }
 
     if (prevState.disabled !== this.state.disabled) {
-      this.props.onDisabledChange &&
-        this.props.onDisabledChange(this.props.option, this.state.disabled);
+      this.props.onDisabledChange && this.props.onDisabledChange(this.props.option, this.state.disabled);
     }
     if (prevState.hovered !== this.state.hovered) {
-      this.props.onHoveredChange &&
-        this.props.onHoveredChange(this.props.option, this.state.hovered);
+      this.props.onHoveredChange && this.props.onHoveredChange(this.props.option, this.state.hovered);
     }
     if (prevState.focused !== this.state.focused) {
-      this.props.onFocusedChange &&
-        this.props.onFocusedChange(this.props.option, this.state.focused);
+      this.props.onFocusedChange && this.props.onFocusedChange(this.props.option, this.state.focused);
 
       if (this.state.focused && this.props.scrollIntoViewOnFocus) {
         setTimeout(() => {
@@ -144,8 +126,7 @@ export default class SelectOption extends React.Component<
       }
     }
     if (prevState.selected !== this.state.selected) {
-      this.props.onSelectedChange &&
-        this.props.onSelectedChange(this.props.option, this.state.selected);
+      this.props.onSelectedChange && this.props.onSelectedChange(this.props.option, this.state.selected);
 
       if (this.state.selected && this.props.scrollIntoViewOnSelect) {
         setTimeout(() => {

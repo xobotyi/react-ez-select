@@ -42,7 +42,7 @@ const defaultStyles = {
     minWidth: "100%",
     border: "1px solid #aaa",
     borderRadius: 2,
-    background: "#fff",
+    background: "#ffffff",
     boxShadow: "0 1px 6px rgba(0,0,0,.35)"
   } as React.CSSProperties,
 
@@ -165,20 +165,10 @@ export default class Select extends React.Component<SelectProps, SelectState> {
 
     value: PropTypes.any,
 
-    placeholder: PropTypes.oneOfType([
-      PropTypes.element,
-      PropTypes.number,
-      PropTypes.string
-    ]),
+    placeholder: PropTypes.oneOfType([PropTypes.element, PropTypes.number, PropTypes.string]),
     placeholderMediator: PropTypes.func,
 
-    indicators: PropTypes.arrayOf(
-      PropTypes.oneOfType([
-        PropTypes.element,
-        PropTypes.number,
-        PropTypes.string
-      ])
-    ),
+    indicators: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.element, PropTypes.number, PropTypes.string])),
 
     onChange: PropTypes.func,
     onInput: PropTypes.func,
@@ -216,7 +206,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     tabIndex: PropTypes.number,
 
     noDefaultStyles: PropTypes.bool
-  };
+  } as PropTypes.InferProps<SelectProps>;
 
   static defaultProps = {
     dropdownRemoveOnHide: true,
@@ -256,25 +246,17 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     super(props);
 
     this.state = {
-      opened:
-        this.props.dropdownOpenedOnInit || this.props.dropdownOpened || false,
+      opened: this.props.dropdownOpenedOnInit || this.props.dropdownOpened || false,
 
       selectOptionSource: null,
-      selectedOptionIdx:
-        this.props.value !== undefined
-          ? this.findValueIndex(this.props.value)
-          : null,
+      selectedOptionIdx: this.props.value !== undefined ? this.findValueIndex(this.props.value) : null,
 
       focusOptionSource: null,
       focusedOptionIdx: null
     };
   }
 
-  public componentDidUpdate(
-    prevProps: Readonly<SelectProps>,
-    prevState: Readonly<SelectState>,
-    snapshot?: any
-  ): void {
+  public componentDidUpdate(prevProps: Readonly<SelectProps>, prevState: Readonly<SelectState>, snapshot?: any): void {
     this.state.opened && this.triggerElement && this.triggerElement.focus();
 
     if (this.state.opened !== prevState.opened) {
@@ -284,9 +266,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
       prevProps.options !== this.props.options ||
       prevProps.options.length !== this.props.options.length ||
       (prevProps.value !== this.props.value &&
-        (!this.state.selectedOptionIdx ||
-          this.props.value !==
-            this.props.options[this.state.selectedOptionIdx].value))
+        (!this.state.selectedOptionIdx || this.props.value !== this.props.options[this.state.selectedOptionIdx].value))
     ) {
       const valueIndex = this.findValueIndex(this.props.value);
       this.setState({
@@ -299,9 +279,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     const currentValue = this.state.selectedOptionIdx
       ? this.props.options[this.state.selectedOptionIdx].value
       : undefined;
-    const prevValue = prevState.selectedOptionIdx
-      ? this.props.options[prevState.selectedOptionIdx].value
-      : undefined;
+    const prevValue = prevState.selectedOptionIdx ? this.props.options[prevState.selectedOptionIdx].value : undefined;
 
     if (this.props.onChange && currentValue !== prevValue) {
       this.props.onChange(currentValue);
@@ -320,13 +298,11 @@ export default class Select extends React.Component<SelectProps, SelectState> {
 
     switch (direction) {
       case SWITCH_DIRECTION.UP:
-        idxToSet =
-          (focusedOptionIdx > 0 ? focusedOptionIdx : options.length) - 1;
+        idxToSet = (focusedOptionIdx > 0 ? focusedOptionIdx : options.length) - 1;
         break;
 
       case SWITCH_DIRECTION.DOWN:
-        idxToSet =
-          focusedOptionIdx === options.length - 1 ? 0 : focusedOptionIdx + 1;
+        idxToSet = focusedOptionIdx === options.length - 1 ? 0 : focusedOptionIdx + 1;
         break;
 
       case SWITCH_DIRECTION.FIRST:
@@ -357,13 +333,11 @@ export default class Select extends React.Component<SelectProps, SelectState> {
 
     switch (direction) {
       case SWITCH_DIRECTION.UP:
-        idxToSet =
-          (selectedOptionIdx > 0 ? selectedOptionIdx : options.length) - 1;
+        idxToSet = (selectedOptionIdx > 0 ? selectedOptionIdx : options.length) - 1;
         break;
 
       case SWITCH_DIRECTION.DOWN:
-        idxToSet =
-          selectedOptionIdx === options.length - 1 ? 0 : selectedOptionIdx + 1;
+        idxToSet = selectedOptionIdx === options.length - 1 ? 0 : selectedOptionIdx + 1;
         break;
 
       case SWITCH_DIRECTION.FIRST:
@@ -394,11 +368,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     return idx >= 0 ? idx : null;
   };
 
-  public focusOption = (
-    option?: OptionItem | null,
-    idx: number | null = null,
-    source: string | null = null
-  ): this => {
+  public focusOption = (option?: OptionItem | null, idx: number | null = null, source: string | null = null): this => {
     if (option) {
       idx = this.findOptionIndex(option);
     }
@@ -410,11 +380,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
 
     return this;
   };
-  public selectOption = (
-    option?: OptionItem | null,
-    idx: number | null = null,
-    source: string | null = null
-  ): this => {
+  public selectOption = (option?: OptionItem | null, idx: number | null = null, source: string | null = null): this => {
     if (option) {
       idx = this.findOptionIndex(option);
     }
@@ -423,8 +389,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
       selectedOptionIdx: idx || 0,
       selectOptionSource: source
     });
-    this.props.onInput &&
-      this.props.onInput(this.props.options[idx || 0].value);
+    this.props.onInput && this.props.onInput(this.props.options[idx || 0].value);
 
     return this;
   };
@@ -433,33 +398,25 @@ export default class Select extends React.Component<SelectProps, SelectState> {
     switch (evt.key) {
       case "ArrowUp":
         evt.preventDefault();
-        (this.state.opened
-          ? this.switchFocusedOption
-          : this.switchSelectedOption)(SWITCH_DIRECTION.UP, "keyboard");
+        (this.state.opened ? this.switchFocusedOption : this.switchSelectedOption)(SWITCH_DIRECTION.UP, "keyboard");
 
         break;
 
       case "ArrowDown":
         evt.preventDefault();
-        (this.state.opened
-          ? this.switchFocusedOption
-          : this.switchSelectedOption)(SWITCH_DIRECTION.DOWN, "keyboard");
+        (this.state.opened ? this.switchFocusedOption : this.switchSelectedOption)(SWITCH_DIRECTION.DOWN, "keyboard");
 
         break;
 
       case "Home":
         evt.preventDefault();
-        (this.state.opened
-          ? this.switchFocusedOption
-          : this.switchSelectedOption)(SWITCH_DIRECTION.FIRST, "keyboard");
+        (this.state.opened ? this.switchFocusedOption : this.switchSelectedOption)(SWITCH_DIRECTION.FIRST, "keyboard");
 
         break;
 
       case "End":
         evt.preventDefault();
-        (this.state.opened
-          ? this.switchFocusedOption
-          : this.switchSelectedOption)(SWITCH_DIRECTION.LAST, "keyboard");
+        (this.state.opened ? this.switchFocusedOption : this.switchSelectedOption)(SWITCH_DIRECTION.LAST, "keyboard");
 
         break;
 
@@ -519,25 +476,13 @@ export default class Select extends React.Component<SelectProps, SelectState> {
           option={option}
           value={option.value}
           label={option.label}
-          style={
-            this.props.noDefaultStyles
-              ? undefined
-              : defaultStyles.option.regular
-          }
+          style={this.props.noDefaultStyles ? undefined : defaultStyles.option.regular}
           focused={idx === this.state.focusedOptionIdx}
           scrollIntoViewOnFocus={scrollIntoViewOnFocus}
           selected={idx === this.state.selectedOptionIdx}
           disabled={option.disabled || false}
-          focusedStyle={
-            this.props.noDefaultStyles
-              ? undefined
-              : defaultStyles.option.focused
-          }
-          selectedStyle={
-            this.props.noDefaultStyles
-              ? undefined
-              : defaultStyles.option.selected
-          }
+          focusedStyle={this.props.noDefaultStyles ? undefined : defaultStyles.option.focused}
+          selectedStyle={this.props.noDefaultStyles ? undefined : defaultStyles.option.selected}
           onClick={evt => {
             this.triggerElement && this.triggerElement.focus();
 
@@ -644,20 +589,12 @@ export default class Select extends React.Component<SelectProps, SelectState> {
       ...props
     } = this.props;
 
-    props.className = cnb(
-      "EzSelect",
-      this.props.className,
-      this.state.opened && openedClassName
-    );
+    props.className = cnb("EzSelect", this.props.className, this.state.opened && openedClassName);
     props.style = noDefaultStyles ? undefined : defaultStyles.holder;
 
-    const holderFinalProps = mergeProps(
-      props,
-      this.state.opened && openedProps,
-      {
-        ref: this.holderRef
-      }
-    );
+    const holderFinalProps = mergeProps(props, this.state.opened && openedProps, {
+      ref: this.holderRef
+    });
     const controlFinalProps = mergeProps(
       {
         className: "EzSelect-Control",
@@ -741,9 +678,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
                 {...mergeProps(
                   {
                     className: "EzSelect-Indicators",
-                    style: noDefaultStyles
-                      ? undefined
-                      : defaultStyles.indicators
+                    style: noDefaultStyles ? undefined : defaultStyles.indicators
                   },
                   indicatorsProps,
                   this.state.opened && indicatorsOpenedProps,
@@ -757,9 +692,7 @@ export default class Select extends React.Component<SelectProps, SelectState> {
           </DropdownTrigger>
 
           <DropdownContent {...dropdownFinalProps}>
-            <Scrollbar {...scrollbarFinalProps}>
-              {this.renderOptionsList(options)}
-            </Scrollbar>
+            <Scrollbar {...scrollbarFinalProps}>{this.renderOptionsList(options)}</Scrollbar>
           </DropdownContent>
         </Dropdown>
       </div>
